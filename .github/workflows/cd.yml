@@ -20,14 +20,13 @@ jobs:
             
             cd movie-rating-system
             
-            # update code forcely
+            # update code
             git fetch --all
             git reset --hard origin/main
             
-            # install bundle
-            bundle install
+            bundle install --path vendor/bundle
             
-            # run in the development environment
+            # start
             pkill -f 'rails server' || true
             nohup bundle exec rails server -b 0.0.0.0 -p 3000 > log/development.log 2>&1 &
             
