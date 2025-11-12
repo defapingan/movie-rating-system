@@ -28,16 +28,16 @@ jobs:
             bundle config set path 'vendor/bundle'
             bundle install
             
-            # Setup database
-            rails db:create db:migrate
+            # Run database migrations only
+            rails db:migrate
             
             # Stop any running application
             pkill -f 'rails server' || true
             
             echo "Starting Rails application..."
             
-            # Start application and immediately detach
-            nohup bundle exec rails server -b 0.0.0.0 -p 3000 > /dev/null 2>&1 &
+            # Start application in background, log output for debugging
+            nohup bundle exec rails server -b 0.0.0.0 -p 3000 >> log/deploy.log 2>&1 &
             
             echo "Deployment process completed"
             echo "Application starting on: http://${{ secrets.AWS_HOST }}:3000"
