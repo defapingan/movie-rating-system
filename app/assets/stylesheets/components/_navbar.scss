@@ -1,0 +1,24 @@
+.navbar-custom {
+  background: rgba(15, 23, 42, 0.95) !important;
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--purple);
+  
+  .navbar-brand {
+    color: var(--light-text) !important;
+    font-weight: bold;
+    font-size: 1.5rem;
+    
+    &:hover {
+      color: var(--purple) !important;
+    }
+  }
+  
+  .nav-link {
+    color: var(--light-text) !important;
+    font-weight: 500;
+    
+    &:hover, &.active {
+      color: var(--purple) !important;
+    }
+  }
+}

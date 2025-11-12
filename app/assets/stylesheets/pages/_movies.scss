@@ -1,0 +1,54 @@
+.movies-page {
+  padding: 2rem 0;
+  
+  .page-header {
+    margin-bottom: 2rem;
+    
+    h1 {
+      color: var(--light-text);
+      font-weight: 700;
+    }
+    
+    .subtitle {
+      color: #9ca3af;
+      font-size: 1.1rem;
+    }
+  }
+  
+  .filters {
+    background: rgba(30, 41, 59, 0.6);
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 2rem;
+    border: 1px solid rgba(126, 34, 206, 0.2);
+    
+    .filter-group {
+      margin-bottom: 1rem;
+      
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  
+  .empty-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+  }
+  
+  h3 {
+    color: var(--light-text);
+    margin-bottom: 1rem;
+  }
+  
+  p {
+    color: #9ca3af;
+    margin-bottom: 2rem;
+  }
+}

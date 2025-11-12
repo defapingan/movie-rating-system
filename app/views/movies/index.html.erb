@@ -1,0 +1,145 @@
+<div class="movies-page">
+  <div class="container">
+    <!-- title -->
+    <div class="page-header">
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+          <h1 class="display-5 fw-bold">Movie Rating System</h1>
+          <p class="subtitle">arrange your movie and rating</p>
+        </div>
+        <div class="d-flex gap-2">
+          <%= link_to 'Data Analytics', analytics_path, class: 'btn btn-outline-custom' %>
+          <%= link_to 'Add Movie', new_movie_path, class: 'btn btn-custom' %>
+        </div>
+      </div>
+    </div>
+
+    <!-- fliter -->
+    <div class="filters">
+      <div class="row">
+        <div class="col-md-4">
+          <label class="form-label">select category</label>
+          <select class="form-select" id="categoryFilter">
+            <option value="">all the class</option>
+            <% Movie::CATEGORIES.each do |category| %>
+              <option value="<%= category %>"><%= category %></option>
+            <% end %>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">select country</label>
+          <select class="form-select" id="countryFilter">
+            <option value="">all the nation</option>
+            <% Movie::COUNTRIES.each do |country| %>
+              <option value="<%= country %>"><%= country %></option>
+            <% end %>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">select rating</label>
+          <select class="form-select" id="ratingFilter">
+            <option value="">all the rating</option>
+            <option value="5">5 stars</option>
+            <option value="4">4 stars and higher</option>
+            <option value="3">3 stars and higher</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- movie grid -->
+    <div class="row" id="moviesGrid">
+      <% @movies.each do |movie| %>
+        <div class="col-xl-4 col-lg-6 mb-4 movie-item" 
+             data-category="<%= movie.category %>" 
+             data-country="<%= movie.country %>" 
+             data-rating="<%= movie.average_rating.to_i %>">
+          <div class="card movie-card h-100">
+            <div class="card-header">
+              <h5 class="card-title"><%= movie.title %></h5>
+              <div class="movie-meta">
+                <span class="badge category-badge <%= movie.category %>">
+                  <%= movie.category %>
+                </span>
+                <span class="badge bg-dark">
+                  <%= movie.country %>
+                </span>
+                <span class="badge bg-secondary">
+                  🎬 <%= movie.release_year %>
+                </span>
+              </div>
+            </div>
+            
+            <div class="card-body">
+              <% if movie.description.present? %>
+                <p class="card-text"><%= movie.description %></p>
+              <% end %>
+              
+              <!-- rating show -->
+              <div class="rating-display">
+                <strong class="rating-label">Rating:</strong>
+                <div class="rating-value">
+                  <span class="rating-number"><%= movie.average_rating || 0 %></span>
+                  <span class="rating-max">/5</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="card-footer bg-transparent">
+              <div class="btn-group w-100">
+                <%= link_to 'Check', movie, class: 'btn btn-outline-light btn-sm' %>
+                <%= link_to 'Edit', edit_movie_path(movie), class: 'btn btn-outline-primary btn-sm' %>
+                <%= link_to 'Delet', movie, method: :delete, 
+                    data: { confirm: 'Are you sure you want to delete this movie?' }, 
+                    class: 'btn btn-outline-danger btn-sm' %>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- empty status -->
+    <% if @movies.empty? %>
+      <div class="empty-state">
+        <div class="empty-icon">🎬</div>
+        <h3>No movies exit yet</h3>
+        <p>Start to creat!</p>
+        <%= link_to 'Add the fisrt movie', new_movie_path, class: 'btn btn-custom btn-lg' %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<!-- Filter function JavaScript -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const filters = ['categoryFilter', 'countryFilter', 'ratingFilter'];
+  
+  filters.forEach(filterId => {
+    document.getElementById(filterId).addEventListener('change', filterMovies);
+  });
+  
+  function filterMovies() {
+    const category = document.getElementById('categoryFilter').value;
+    const country = document.getElementById('countryFilter').value;
+    const rating = document.getElementById('ratingFilter').value;
+    
+    document.querySelectorAll('.movie-item').forEach(item => {
+      const itemCategory = item.dataset.category;
+      const itemCountry = item.dataset.country;
+      const itemRating = parseInt(item.dataset.rating);
+      
+      const categoryMatch = !category || itemCategory === category;
+      const countryMatch = !country || itemCountry === country;
+      const ratingMatch = !rating || itemRating >= parseInt(rating);
+      
+      if (categoryMatch && countryMatch && ratingMatch) {
+        item.style.display = 'block';
+      } else {
+        item.style.display = 'none';
+      }
+    });
+  }
+});
+</script>

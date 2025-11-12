@@ -1,0 +1,80 @@
+.movie-card {
+  background: linear-gradient(145deg, var(--dark-gray) 0%, var(--dark-blue) 100%);
+  border: 1px solid rgba(126, 34, 206, 0.3);
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  color: var(--light-text);
+  overflow: hidden;
+  
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(126, 34, 206, 0.3);
+    border-color: var(--purple);
+  }
+  
+  .card-header {
+    background: rgba(30, 58, 138, 0.3);
+    border-bottom: 1px solid var(--purple);
+    padding: 1rem;
+  }
+  
+  .card-title {
+    color: var(--light-text);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+  
+  .movie-meta {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.5rem;
+  }
+  
+  .card-text {
+    color: #cbd5e1;
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+}
+
+.badge.category-badge {
+  color: white !important;
+  font-weight: 600;
+  border: none;
+  
+  &.ScienceFiction { background: linear-gradient(45deg, #3b82f6, #1d4ed8) !important; }
+  &.Mystery { background: linear-gradient(45deg, #ef4444, #dc2626) !important; }
+  &.Art { background: linear-gradient(45deg, #10b981, #059669) !important; }
+  &.Others { background: linear-gradient(45deg, #6b7280, #4b5563) !important; }
+  &.Comedy { background: linear-gradient(45deg, #f59e0b, #d97706) !important; }
+}
+
+// Rating display styles
+.rating-display {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  
+  .rating-label {
+    color: var(--light-text);
+    margin: 0;
+  }
+  
+  .rating-value {
+    display: flex;
+    align-items: baseline;
+    gap: 0.1rem;
+  }
+  
+  .rating-number {
+    color: #fbbf24;
+    font-size: 1.2rem;
+    font-weight: bold;
+  }
+  
+  .rating-max {
+    color: #9ca3af;
+    font-size: 0.9rem;
+  }
+}

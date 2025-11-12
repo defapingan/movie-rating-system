@@ -1,9 +1,36 @@
-# This file should ensure the existence of records required to run the application in every environment (production,
-# development, test). The code here should be idempotent so that it can be executed at any point in every environment.
-# The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
-#
-# Example:
-#
-#   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
-#     MovieGenre.find_or_create_by!(name: genre_name)
-#   end
+# Clear existing data
+Movie.destroy_all
+
+# Add test movie data (using English categories and countries)
+movies = [
+  {
+    title: "The Wandering Earth 2",
+    category: "Science fiction",
+    country: "Chinese",
+    release_year: 2023,
+    average_rating: 4.5,
+    description: "Sci-fi adventure movie about humanity pushing Earth out of solar system"
+  },
+  {
+    title: "Full River Red", 
+    category: "Mystery",
+    country: "Chinese",
+    release_year: 2023,
+    average_rating: 4.2,
+    description: "Historical mystery comedy set in Southern Song dynasty"
+  },
+  {
+    title: "Avatar: The Way of Water",
+    category: "Science fiction", 
+    country: "American",
+    release_year: 2022,
+    average_rating: 4.3,
+    description: "Sci-fi epic about the underwater world of Pandora"
+  }
+]
+
+movies.each do |movie_data|
+  Movie.create!(movie_data)
+end
+
+puts "Successfully created #{Movie.count} movies"
