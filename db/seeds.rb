@@ -10,7 +10,7 @@ movies = [
     description: "Sci-fi adventure movie about humanity pushing Earth out of solar system"
   },
   {
-    title: "Full River Red", 
+    title: "Full River Red",
     category: "Mystery",
     country: "Chinese",
     release_year: 2023,
@@ -20,7 +20,7 @@ movies = [
   {
     title: "Avatar: The Way of Water",
     category: "ScienceFiction",
-    country: "American", 
+    country: "American",
     release_year: 2022,
     average_rating: 4.3,
     description: "Sci-fi epic about the underwater world of Pandora"
@@ -35,7 +35,7 @@ movies = [
   },
   {
     title: "Spirited Away",
-    category: "Art", 
+    category: "Art",
     country: "Japanese",
     release_year: 2001,
     average_rating: 4.8,
@@ -45,7 +45,7 @@ movies = [
     title: "Inception",
     category: "Others",
     country: "American",
-    release_year: 2010, 
+    release_year: 2010,
     average_rating: 4.7,
     description: "A thief who steals corporate secrets through the use of dream-sharing technology is given the inverse task of planting an idea into the mind of a C.E.O."
   }
