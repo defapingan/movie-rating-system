@@ -16,7 +16,7 @@ end
 
 Rails.application.routes.draw do
   get "analytics/index"
-  root 'movies#index'
+  root "movies#index"
   resources :movies
-  get 'analytics', to: 'analytics#index'
+  get "analytics", to: "analytics#index"
 end

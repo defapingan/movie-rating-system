@@ -12,7 +12,7 @@ movies = [
     description: "Sci-fi adventure movie about humanity pushing Earth out of solar system"
   },
   {
-    title: "Full River Red", 
+    title: "Full River Red",
     category: "Mystery",
     country: "Chinese",
     release_year: 2023,
@@ -21,7 +21,7 @@ movies = [
   },
   {
     title: "Avatar: The Way of Water",
-    category: "Science fiction", 
+    category: "Science fiction",
     country: "American",
     release_year: 2022,
     average_rating: 4.3,
