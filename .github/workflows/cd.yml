@@ -1,0 +1,47 @@
+name: CD to AWS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy to AWS
+    runs-on: ubuntu-latest
+
+    steps:
+    # pull the code
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    # setup Ruby environment
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: 3.4.6
+        bundler-cache: true
+
+    # install the bundler
+    - name: Install dependencies
+      run: |
+        gem install bundler
+        bundle install --deployment --without development test
+
+    # Deploy to AWS through SSH
+    - name: Deploy to AWS via SSH
+      uses: appleboy/ssh-action@v0.1.7
+      with:
+        host: ${{ secrets.AWS_HOST }}
+        username: ${{ secrets.AWS_USER }}
+        key: ${{ secrets.AWS_SSH_KEY }}
+        port: 22
+        script: |
+          cd ~/movie-rating-system
+          git pull origin main
+          bundle install --deployment --without development test
+          RAILS_ENV=production SECRET_KEY_BASE=${{ secrets.SECRET_KEY_BASE }} rails db:migrate
+          RAILS_ENV=production SECRET_KEY_BASE=${{ secrets.SECRET_KEY_BASE }} rails assets:precompile
+          # start or restart the server
+          sudo pkill -f 'rails server' || true
+          sudo /home/ubuntu/.rbenv/shims/rails server --environment production --binding 0.0.0.0 --port 80 -d
