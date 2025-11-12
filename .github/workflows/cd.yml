@@ -34,11 +34,12 @@ jobs:
             # Stop any running application
             pkill -f 'rails server' || true
             
-            echo "Starting Rails application..."
+            echo "Starting Rails application in screen session..."
             
-            # Start application in background, log output for debugging
-            nohup bundle exec rails server -b 0.0.0.0 -p 3000 >> log/deploy.log 2>&1 &
+            # Start Rails
+            screen -S rails_app -X quit || true
+            screen -dmS rails_app bundle exec rails server -b 0.0.0.0 -p 3000
             
             echo "Deployment process completed"
-            echo "Application starting on: http://${{ secrets.AWS_HOST }}:3000"
+            echo "Application should now be running on: http://${{ secrets.AWS_HOST }}:3000"
             echo "Note: Application may take 30-60 seconds to fully start"
