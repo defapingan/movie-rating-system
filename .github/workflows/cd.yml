@@ -31,15 +31,20 @@ jobs:
             # Run database migrations only
             rails db:migrate
             
-            # Stop any running application
-            pkill -f 'rails server' || true
+            # Create a simple startup script
+            cat > start_app.sh << 'EOF'
+            #!/bin/bash
+            cd /home/ubuntu/movie-rating-system
+            pkill -f "rails server" || true
+            sleep 2
+            bundle exec rails server -b 0.0.0.0 -p 3000
+            EOF
             
-            echo "Starting Rails application in screen session..."
+            chmod +x start_app.sh
             
-            # Start Rails
-            screen -S rails_app -X quit || true
-            screen -dmS rails_app bundle exec rails server -b 0.0.0.0 -p 3000
+            # Use at command to schedule startup
+            echo "/home/ubuntu/movie-rating-system/start_app.sh" | at now
             
             echo "Deployment process completed"
-            echo "Application should now be running on: http://${{ secrets.AWS_HOST }}:3000"
-            echo "Note: Application may take 30-60 seconds to fully start"
+            echo "Application startup scheduled"
+            echo "Check application in 1-2 minutes: http://${{ secrets.AWS_HOST }}:3000"
