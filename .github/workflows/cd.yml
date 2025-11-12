@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -11,37 +12,37 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # pull the code
     - name: Checkout code
       uses: actions/checkout@v3
 
-    # setup Ruby environment
-    - name: Set up Ruby
-      uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: 3.4.6
-        bundler-cache: true
-
-    # install the bundler
-    - name: Install dependencies
-      run: |
-        gem install bundler
-        bundle install --deployment --without development test
-
-    # Deploy to AWS through SSH
     - name: Deploy to AWS via SSH
       uses: appleboy/ssh-action@v0.1.7
       with:
         host: ${{ secrets.AWS_HOST }}
-        username: ${{ secrets.AWS_USER }}
-        key: ${{ secrets.AWS_SSH_KEY }}
+        username: ubuntu
+        key: ${{ secrets.AWS_SSH_PRIVATE_KEY }}
         port: 22
         script: |
-          cd ~/movie-rating-system
+          echo "Start to Deploy..."
+          
+          # clone first if does not exist
+          if [ ! -d "movie-rating-system" ]; then
+            git clone https://github.com/defapingan/movie-rating-system.git
+          fi
+          
+          cd movie-rating-system
           git pull origin main
-          bundle install --deployment --without development test
-          RAILS_ENV=production SECRET_KEY_BASE=${{ secrets.SECRET_KEY_BASE }} rails db:migrate
-          RAILS_ENV=production SECRET_KEY_BASE=${{ secrets.SECRET_KEY_BASE }} rails assets:precompile
-          # start or restart the server
+          
+          # install bundle
+          bundle install
+          
+          # setup environment
+          RAILS_ENV=production rails db:create db:migrate
+          RAILS_ENV=production rails assets:precompile
+          
+          # restart
           sudo pkill -f 'rails server' || true
-          sudo /home/ubuntu/.rbenv/shims/rails server --environment production --binding 0.0.0.0 --port 80 -d
+          nohup rails server -e production -b 0.0.0.0 -p 3000 > log/production.log 2>&1 &
+          
+          echo "Deploy Successfully"
+          echo "Here: http://${{ secrets.AWS_HOST }}:3000"
