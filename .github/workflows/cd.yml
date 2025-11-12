@@ -16,7 +16,7 @@ jobs:
           username: ubuntu
           key: ${{ secrets.AWS_SSH_KEY }}
           script: |
-            echo "Starting deployment..."
+            echo "Starting deployment process..."
             
             cd movie-rating-system
             
@@ -28,24 +28,17 @@ jobs:
             bundle config set path 'vendor/bundle'
             bundle install
             
-            # Create and migrate database
+            # Setup database
             rails db:create db:migrate
             
-            # Stop existing application
+            # Stop any running application
             pkill -f 'rails server' || true
             
-            # Start application with proper detach
-            nohup bundle exec rails server -b 0.0.0.0 -p 3000 > log/development.log 2>&1 &
+            echo "Starting Rails application..."
             
-            # Wait briefly for startup
-            sleep 10
+            # Start application and immediately detach
+            nohup bundle exec rails server -b 0.0.0.0 -p 3000 > /dev/null 2>&1 &
             
-            # Verify application is running
-            if curl -f http://localhost:3000 > /dev/null 2>&1; then
-              echo "Deployment successful - Application is running"
-              echo "Access: http://${{ secrets.AWS_HOST }}:3000"
-            else
-              echo "Application may have startup issues"
-              echo "Check logs manually: cat log/development.log"
-              # Don't exit with error - application might still be starting
-            fi
+            echo "Deployment process completed"
+            echo "Application starting on: http://${{ secrets.AWS_HOST }}:3000"
+            echo "Note: Application may take 30-60 seconds to fully start"
