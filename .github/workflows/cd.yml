@@ -16,19 +16,34 @@ jobs:
           username: ubuntu
           key: ${{ secrets.AWS_SSH_KEY }}
           script: |
-            echo "Start to Deploy..."
+            echo "Starting deployment..."
             
             cd movie-rating-system
             
-            # update code
+            # Update code
             git fetch --all
             git reset --hard origin/main
             
+            # Install dependencies
             bundle install --path vendor/bundle
             
-            # start
+            # Create and migrate database
+            rails db:create db:migrate
+            
+            # Stop existing application
             pkill -f 'rails server' || true
+            
+            # Start application
             nohup bundle exec rails server -b 0.0.0.0 -p 3000 > log/development.log 2>&1 &
             
-            echo "Deploy Successfully!"
-            echo "Here: http://${{ secrets.AWS_HOST }}:3000"
+            # Wait for application to start
+            sleep 5
+            
+            # Check if application is running
+            if pgrep -f "rails server" > /dev/null; then
+              echo "Deployment successful"
+              echo "Access: http://${{ secrets.AWS_HOST }}:3000"
+            else
+              echo "Application failed to start, check logs: cat log/development.log"
+              exit 1
+            fi
