@@ -2,47 +2,34 @@ name: CD to AWS
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
   deploy:
-    name: Deploy to AWS
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-
-    - name: Deploy to AWS via SSH
-      uses: appleboy/ssh-action@v0.1.7
-      with:
-        host: ${{ secrets.AWS_HOST }}
-        username: ubuntu
-        key: ${{ secrets.AWS_SSH_KEY }}
-        port: 22
-        script: |
-          echo "Start to Deploy..."
-          
-          # clone first if does not exist
-          if [ ! -d "movie-rating-system" ]; then
-            git clone https://github.com/defapingan/movie-rating-system.git
-          fi
-          
-          cd movie-rating-system
-          git pull origin main
-          
-          # install bundle
-          bundle install
-          
-          # setup environment
-          RAILS_ENV=production rails db:create db:migrate
-          RAILS_ENV=production rails assets:precompile
-          
-          # restart
-          sudo pkill -f 'rails server' || true
-          nohup rails server -e production -b 0.0.0.0 -p 3000 > log/production.log 2>&1 &
-          
-          echo "Deploy Successfully"
-          echo "Here: http://${{ secrets.AWS_HOST }}:3000"
+      - name: Deploy to AWS
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.AWS_HOST }}
+          username: ubuntu
+          key: ${{ secrets.AWS_SSH_KEY }}
+          script: |
+            echo "Start to Deploy..."
+            
+            cd movie-rating-system
+            
+            # update code forcely
+            git fetch --all
+            git reset --hard origin/main
+            
+            # install bundle
+            bundle install
+            
+            # run in the development environment
+            pkill -f 'rails server' || true
+            nohup bundle exec rails server -b 0.0.0.0 -p 3000 > log/development.log 2>&1 &
+            
+            echo "Deploy Successfully!"
+            echo "Here: http://${{ secrets.AWS_HOST }}:3000"
