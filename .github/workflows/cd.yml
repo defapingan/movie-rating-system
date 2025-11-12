@@ -20,7 +20,7 @@ jobs:
       with:
         host: ${{ secrets.AWS_HOST }}
         username: ubuntu
-        key: ${{ secrets.AWS_SSH_PRIVATE_KEY }}
+        key: ${{ secrets.AWS_SSH_KEY }}
         port: 22
         script: |
           echo "Start to Deploy..."
