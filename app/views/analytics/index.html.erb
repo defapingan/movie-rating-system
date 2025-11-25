@@ -5,51 +5,105 @@
       <p class="subtitle">Movie data statistics and visualization</p>
     </div>
 
+    <!-- 统计卡片 -->
+    <div class="stats-cards">
+      <div class="stat-card">
+        <div class="stat-icon">🎬</div>
+        <div class="stat-value"><%= @movies_count %></div>
+        <div class="stat-label">Total Movies</div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon">⭐</div>
+        <div class="stat-value highlight"><%= @average_rating %></div>
+        <div class="stat-label">Average Rating</div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon">📊</div>
+        <div class="stat-value"><%= @categories_count %></div>
+        <div class="stat-label">Categories</div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon">🌍</div>
+        <div class="stat-value"><%= @countries_count %></div>
+        <div class="stat-label">Countries</div>
+      </div>
+    </div>
+
     <div class="row">
       <!-- Category Distribution -->
-      <div class="col-md-6 mb-4">
-        <div class="card movie-card">
-          <div class="card-header">
-            <h5 class="card-title">Category Distribution</h5>
+      <div class="col-lg-6 mb-4">
+        <div class="chart-card">
+          <div class="chart-title">Category Distribution</div>
+          <div class="chart-canvas">
+            <canvas id="categoryChart"></canvas>
           </div>
-          <div class="card-body">
-            <canvas id="categoryChart" width="400" height="300"></canvas>
+          <div class="chart-legend">
+            <% @category_data.each do |category, count| %>
+              <div class="legend-item">
+                <div class="legend-color color-<%= category.downcase.parameterize %>"></div>
+                <span><%= category %> (<%= count %>)</span>
+              </div>
+            <% end %>
           </div>
         </div>
       </div>
 
       <!-- Country Distribution -->
-      <div class="col-md-6 mb-4">
-        <div class="card movie-card">
-          <div class="card-header">
-            <h5 class="card-title">Country Distribution</h5>
+      <div class="col-lg-6 mb-4">
+        <div class="chart-card">
+          <div class="chart-title">Country Distribution</div>
+          <div class="chart-canvas">
+            <canvas id="countryChart"></canvas>
           </div>
-          <div class="card-body">
-            <canvas id="countryChart" width="400" height="300"></canvas>
+          <div class="chart-legend">
+            <% @country_data.each do |country, count| %>
+              <div class="legend-item">
+                <div class="legend-color color-<%= country.downcase %>"></div>
+                <span><%= country %> (<%= count %>)</span>
+              </div>
+            <% end %>
           </div>
         </div>
       </div>
 
       <!-- Rating Distribution -->
-      <div class="col-md-6 mb-4">
-        <div class="card movie-card">
-          <div class="card-header">
-            <h5 class="card-title">Rating Distribution</h5>
+      <div class="col-lg-6 mb-4">
+        <div class="chart-card">
+          <div class="chart-title">Rating Distribution</div>
+          <div class="chart-canvas">
+            <canvas id="ratingChart"></canvas>
           </div>
-          <div class="card-body">
-            <canvas id="ratingChart" width="400" height="300"></canvas>
+          <div class="rating-distribution">
+            <% @rating_distribution.each do |rating, percentage| %>
+              <div class="distribution-bar">
+                <div class="rating-stars">
+                  <% rating.times do %>★<% end %><% (5-rating).times do %>☆<% end %>
+                </div>
+                <div class="bar-container">
+                  <div class="bar-fill rating-<%= rating %>" style="width: <%= percentage %>%"></div>
+                </div>
+                <div class="percentage"><%= percentage %>%</div>
+              </div>
+            <% end %>
           </div>
         </div>
       </div>
 
       <!-- Year Statistics -->
-      <div class="col-md-6 mb-4">
-        <div class="card movie-card">
-          <div class="card-header">
-            <h5 class="card-title">Year Statistics</h5>
+      <div class="col-lg-6 mb-4">
+        <div class="chart-card">
+          <div class="chart-title">Release Year Trend</div>
+          <div class="chart-canvas">
+            <canvas id="yearChart"></canvas>
           </div>
-          <div class="card-body">
-            <canvas id="yearChart" width="400" height="300"></canvas>
+          <div class="chart-legend">
+            <div class="legend-item">
+              <div class="legend-color" style="background: linear-gradient(135deg, #667eea, #764ba2);"></div>
+              <span>Movies per Year</span>
+            </div>
           </div>
         </div>
       </div>
@@ -65,6 +119,171 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-  console.log('Analytics page loaded, ready to initialize charts...');
+  console.log('Analytics page loaded, initializing charts...');
+  
+  // Category Distribution Chart (Pie)
+  const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+  new Chart(categoryCtx, {
+    type: 'pie',
+    data: {
+      labels: <%= raw @category_data.keys.to_json %>,
+      datasets: [{
+        data: <%= raw @category_data.values.to_json %>,
+        backgroundColor: [
+          '#3b82f6', '#ef4444', '#f59e0b', '#10b981', '#6b7280'
+        ],
+        borderWidth: 2,
+        borderColor: 'rgba(15, 23, 42, 0.8)'
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              const label = context.label || '';
+              const value = context.raw || 0;
+              const total = context.dataset.data.reduce((a, b) => a + b, 0);
+              const percentage = Math.round((value / total) * 100);
+              return `${label}: ${value} (${percentage}%)`;
+            }
+          }
+        }
+      }
+    }
+  });
+
+  // Country Distribution Chart (Doughnut)
+  const countryCtx = document.getElementById('countryChart').getContext('2d');
+  new Chart(countryCtx, {
+    type: 'doughnut',
+    data: {
+      labels: <%= raw @country_data.keys.to_json %>,
+      datasets: [{
+        data: <%= raw @country_data.values.to_json %>,
+        backgroundColor: [
+          '#dc2626', '#1d4ed8', '#ef4444', '#3b82f6', '#059669'
+        ],
+        borderWidth: 2,
+        borderColor: 'rgba(15, 23, 42, 0.8)'
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '50%',
+      plugins: {
+        legend: {
+          display: false
+        }
+      }
+    }
+  });
+
+  // Rating Distribution Chart (Bar)
+  const ratingCtx = document.getElementById('ratingChart').getContext('2d');
+  new Chart(ratingCtx, {
+    type: 'bar',
+    data: {
+      labels: ['5 Stars', '4 Stars', '3 Stars', '2 Stars', '1 Star'],
+      datasets: [{
+        data: <%= raw @rating_distribution.values.to_json %>,
+        backgroundColor: [
+          'rgba(34, 197, 94, 0.8)',
+          'rgba(134, 239, 172, 0.8)',
+          'rgba(253, 224, 71, 0.8)',
+          'rgba(251, 191, 36, 0.8)',
+          'rgba(248, 113, 113, 0.8)'
+        ],
+        borderColor: [
+          '#16a34a',
+          '#4ade80',
+          '#eab308',
+          '#f59e0b',
+          '#ef4444'
+        ],
+        borderWidth: 2,
+        borderRadius: 8
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 100,
+          ticks: {
+            callback: function(value) {
+              return value + '%';
+            }
+          },
+          grid: {
+            color: 'rgba(255, 255, 255, 0.1)'
+          }
+        },
+        x: {
+          grid: {
+            display: false
+          }
+        }
+      }
+    }
+  });
+
+  // Year Statistics Chart (Line)
+  const yearCtx = document.getElementById('yearChart').getContext('2d');
+  new Chart(yearCtx, {
+    type: 'line',
+    data: {
+      labels: <%= raw @year_data.keys.to_json %>,
+      datasets: [{
+        label: 'Movies Released',
+        data: <%= raw @year_data.values.to_json %>,
+        borderColor: '#764ba2',
+        backgroundColor: 'rgba(118, 75, 162, 0.1)',
+        borderWidth: 3,
+        fill: true,
+        tension: 0.4,
+        pointBackgroundColor: '#667eea',
+        pointBorderColor: '#ffffff',
+        pointBorderWidth: 2,
+        pointRadius: 6,
+        pointHoverRadius: 8
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: {
+            color: 'rgba(255, 255, 255, 0.1)'
+          }
+        },
+        x: {
+          grid: {
+            color: 'rgba(255, 255, 255, 0.1)'
+          }
+        }
+      }
+    }
+  });
 });
 </script>
