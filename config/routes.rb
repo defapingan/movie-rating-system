@@ -20,3 +20,4 @@ Rails.application.routes.draw do
   resources :movies
   get "analytics", to: "analytics#index"
 end
+

@@ -18,14 +18,14 @@
   background: rgba(15, 23, 42, 0.8);
   border: 1px solid #374151;
   color: var(--light-text);
-  
+
   &:focus {
     background: rgba(15, 23, 42, 0.9);
     border-color: var(--purple);
     color: var(--light-text);
     box-shadow: 0 0 0 0.2rem rgba(126, 34, 206, 0.25);
   }
-  
+
   &::placeholder {
     color: #9ca3af;
   }
@@ -37,7 +37,7 @@
   color: white;
   font-weight: 500;
   padding: 0.75rem 1.5rem;
-  
+
   &:hover {
     background: linear-gradient(45deg, var(--dark-purple), var(--dark-blue));
     color: white;
@@ -51,7 +51,7 @@
   color: white;
   font-weight: 500;
   padding: 0.75rem 1.5rem;
-  
+
   &:hover {
     background: linear-gradient(45deg, var(--dark-purple), var(--dark-blue));
     color: white;

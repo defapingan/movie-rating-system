@@ -50,9 +50,9 @@
     <!-- movie grid -->
     <div class="row" id="moviesGrid">
       <% @movies.each do |movie| %>
-        <div class="col-xl-4 col-lg-6 mb-4 movie-item" 
-             data-category="<%= movie.category %>" 
-             data-country="<%= movie.country %>" 
+        <div class="col-xl-4 col-lg-6 mb-4 movie-item"
+             data-category="<%= movie.category %>"
+             data-country="<%= movie.country %>"
              data-rating="<%= movie.average_rating.to_i %>">
           <div class="card movie-card h-100">
             <div class="card-header">
@@ -69,12 +69,12 @@
                 </span>
               </div>
             </div>
-            
+
             <div class="card-body">
               <% if movie.description.present? %>
                 <p class="card-text"><%= movie.description %></p>
               <% end %>
-              
+
               <!-- rating show -->
               <div class="rating-display">
                 <strong class="rating-label">Rating:</strong>
@@ -84,13 +84,13 @@
                 </div>
               </div>
             </div>
-            
+
             <div class="card-footer bg-transparent">
               <div class="btn-group w-100">
                 <%= link_to 'Check', movie, class: 'btn btn-outline-light btn-sm' %>
                 <%= link_to 'Edit', edit_movie_path(movie), class: 'btn btn-outline-primary btn-sm' %>
-                <%= link_to 'Delet', movie, method: :delete, 
-                    data: { confirm: 'Are you sure you want to delete this movie?' }, 
+                <%= link_to 'Delet', movie, method: :delete,
+                    data: { confirm: 'Are you sure you want to delete this movie?' },
                     class: 'btn btn-outline-danger btn-sm' %>
               </div>
             </div>
@@ -115,25 +115,25 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   const filters = ['categoryFilter', 'countryFilter', 'ratingFilter'];
-  
+
   filters.forEach(filterId => {
     document.getElementById(filterId).addEventListener('change', filterMovies);
   });
-  
+
   function filterMovies() {
     const category = document.getElementById('categoryFilter').value;
     const country = document.getElementById('countryFilter').value;
     const rating = document.getElementById('ratingFilter').value;
-    
+
     document.querySelectorAll('.movie-item').forEach(item => {
       const itemCategory = item.dataset.category;
       const itemCountry = item.dataset.country;
       const itemRating = parseInt(item.dataset.rating);
-      
+
       const categoryMatch = !category || itemCategory === category;
       const countryMatch = !country || itemCountry === country;
       const ratingMatch = !rating || itemRating >= parseInt(rating);
-      
+
       if (categoryMatch && countryMatch && ratingMatch) {
         item.style.display = 'block';
       } else {

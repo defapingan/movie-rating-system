@@ -8,10 +8,10 @@
   border: 1px solid rgba(126, 34, 206, 0.3);
   backdrop-filter: blur(10px);
   margin-bottom: 2rem;
-  
+
   .charts-header {
     margin-bottom: 2rem;
-    
+
     h2 {
       color: var(--light-text);
       font-weight: 700;
@@ -21,7 +21,7 @@
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
-    
+
     .chart-description {
       color: #94a3b8;
       font-size: 0.95rem;
@@ -44,13 +44,13 @@
   border-radius: 12px;
   padding: 1.5rem;
   transition: all 0.3s ease;
-  
+
   &:hover {
     border-color: rgba(126, 34, 206, 0.4);
     box-shadow: 0 8px 25px rgba(126, 34, 206, 0.2);
     transform: translateY(-2px);
   }
-  
+
   .chart-title {
     color: var(--light-text);
     font-weight: 600;
@@ -59,7 +59,7 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    
+
     &::before {
       content: '📊';
       font-size: 1.2rem;
@@ -72,7 +72,7 @@
   position: relative;
   height: 300px;
   width: 100%;
-  
+
   canvas {
     border-radius: 8px;
   }
@@ -86,25 +86,25 @@
   margin-top: 1rem;
   padding-top: 1rem;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
-  
+
   .legend-item {
     display: flex;
     align-items: center;
     gap: 0.5rem;
     color: #cbd5e1;
     font-size: 0.85rem;
-    
+
     .legend-color {
       width: 12px;
       height: 12px;
       border-radius: 50%;
-      
+
       &.color-science-fiction { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
       &.color-mystery { background: linear-gradient(135deg, #ef4444, #dc2626); }
       &.color-comedy { background: linear-gradient(135deg, #f59e0b, #d97706); }
       &.color-art { background: linear-gradient(135deg, #10b981, #059669); }
       &.color-others { background: linear-gradient(135deg, #6b7280, #4b5563); }
-      
+
       &.color-chinese { background: linear-gradient(135deg, #dc2626, #b91c1c); }
       &.color-american { background: linear-gradient(135deg, #1d4ed8, #1e40af); }
       &.color-japanese { background: linear-gradient(135deg, #ef4444, #dc2626); }
@@ -128,24 +128,24 @@
   padding: 1.5rem;
   text-align: center;
   transition: all 0.3s ease;
-  
+
   &:hover {
     transform: translateY(-3px);
     box-shadow: 0 10px 25px rgba(126, 34, 206, 0.3);
   }
-  
+
   .stat-icon {
     font-size: 2rem;
     margin-bottom: 0.5rem;
     opacity: 0.9;
   }
-  
+
   .stat-value {
     color: var(--light-text);
     font-size: 2rem;
     font-weight: 700;
     margin-bottom: 0.25rem;
-    
+
     &.highlight {
       background: linear-gradient(135deg, #fbbf24, #f59e0b);
       -webkit-background-clip: text;
@@ -153,7 +153,7 @@
       background-clip: text;
     }
   }
-  
+
   .stat-label {
     color: #94a3b8;
     font-size: 0.9rem;
@@ -167,14 +167,14 @@
     display: flex;
     align-items: center;
     margin-bottom: 0.75rem;
-    
+
     .rating-stars {
       color: #fbbf24;
       font-weight: 600;
       width: 80px;
       font-size: 0.9rem;
     }
-    
+
     .bar-container {
       flex: 1;
       background: rgba(255, 255, 255, 0.1);
@@ -182,24 +182,24 @@
       height: 20px;
       margin: 0 1rem;
       overflow: hidden;
-      
+
       .bar-fill {
         height: 100%;
         background: linear-gradient(90deg, #f59e0b, #fbbf24);
         border-radius: 10px;
         transition: width 1s ease-in-out;
-        
+
         @for $i from 1 through 5 {
           &.rating-#{$i} {
-            background: linear-gradient(90deg, 
-              mix(#f59e0b, #ef4444, $i * 20%), 
+            background: linear-gradient(90deg,
+              mix(#f59e0b, #ef4444, $i * 20%),
               mix(#fbbf24, #f59e0b, $i * 20%)
             );
           }
         }
       }
     }
-    
+
     .percentage {
       color: var(--light-text);
       font-weight: 600;
@@ -213,34 +213,34 @@
 // 电影分类饼图容器
 .category-pie-container {
   position: relative;
-  
+
   .category-list {
     margin-top: 1rem;
-    
+
     .category-item {
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 0.5rem 0;
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      
+
       &:last-child {
         border-bottom: none;
       }
-      
+
       .category-name {
         display: flex;
         align-items: center;
         gap: 0.5rem;
         color: var(--light-text);
-        
+
         .category-dot {
           width: 8px;
           height: 8px;
           border-radius: 50%;
         }
       }
-      
+
       .category-count {
         color: #94a3b8;
         font-weight: 600;
@@ -257,13 +257,13 @@
     fill: none;
     stroke-linecap: round;
   }
-  
+
   .trend-point {
     fill: #667eea;
     stroke: var(--light-text);
     stroke-width: 2;
     transition: all 0.3s ease;
-    
+
     &:hover {
       fill: #fbbf24;
       r: 6;
@@ -277,29 +277,29 @@
     padding: 1rem;
     margin-bottom: 1rem;
   }
-  
+
   .charts-grid {
     grid-template-columns: 1fr;
     gap: 1rem;
   }
-  
+
   .stats-cards {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   .chart-card {
     padding: 1rem;
   }
-  
+
   .chart-canvas {
     height: 250px;
   }
-  
+
   .distribution-bar {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.5rem;
-    
+
     .bar-container {
       margin: 0;
       width: 100%;
@@ -314,7 +314,7 @@
   justify-content: center;
   height: 200px;
   color: #94a3b8;
-  
+
   .loading-spinner {
     width: 40px;
     height: 40px;
@@ -324,7 +324,7 @@
     animation: spin 1s linear infinite;
     margin-right: 1rem;
   }
-  
+
   @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
@@ -339,18 +339,18 @@
   justify-content: center;
   height: 200px;
   color: #94a3b8;
-  
+
   .empty-icon {
     font-size: 3rem;
     margin-bottom: 1rem;
     opacity: 0.5;
   }
-  
+
   .empty-text {
     font-size: 1.1rem;
     margin-bottom: 0.5rem;
   }
-  
+
   .empty-subtext {
     font-size: 0.9rem;
     opacity: 0.7;

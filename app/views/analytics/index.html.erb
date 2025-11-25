@@ -12,19 +12,19 @@
         <div class="stat-value"><%= @movies_count %></div>
         <div class="stat-label">Total Movies</div>
       </div>
-      
+
       <div class="stat-card">
         <div class="stat-icon">⭐</div>
         <div class="stat-value highlight"><%= @average_rating %></div>
         <div class="stat-label">Average Rating</div>
       </div>
-      
+
       <div class="stat-card">
         <div class="stat-icon">📊</div>
         <div class="stat-value"><%= @categories_count %></div>
         <div class="stat-label">Categories</div>
       </div>
-      
+
       <div class="stat-card">
         <div class="stat-icon">🌍</div>
         <div class="stat-value"><%= @countries_count %></div>
@@ -120,7 +120,7 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   console.log('Analytics page loaded, initializing charts...');
-  
+
   // Category Distribution Chart (Pie)
   const categoryCtx = document.getElementById('categoryChart').getContext('2d');
   new Chart(categoryCtx, {
