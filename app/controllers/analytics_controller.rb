@@ -43,7 +43,7 @@ class AnalyticsController < ApplicationController
 
     if total_movies_with_rating > 0
       rating_ranges.each do |stars, range|
-        count = @movies.where('average_rating >= ? AND average_rating < ?', range[:min], range[:max]).count
+        count = @movies.where("average_rating >= ? AND average_rating < ?", range[:min], range[:max]).count
         percentage = (count.to_f / total_movies_with_rating * 100).round(1)
         distribution[stars] = percentage
       end

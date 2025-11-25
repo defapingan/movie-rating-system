@@ -45,4 +45,3 @@ class MoviesController < ApplicationController
     params.require(:movie).permit(:title, :category, :country, :release_year, :average_rating, :description)
   end
 end
-
