@@ -1,1 +1,25 @@
+.analytics-page {
+  padding: 2rem 0;
 
+  .page-header {
+    h1 {
+      color: var(--light-text);
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .subtitle {
+      color: #9ca3af;
+      font-size: 1.1rem;
+    }
+  }
+}
+
+.chart-canvas {
+  position: relative;
+  width: 100%;
+
+  &.pie { height: 240px; }
+  &.bar { height: 260px; }
+  &.line { height: 260px; }
+}

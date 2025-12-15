@@ -1,6 +1,5 @@
 <div class="movies-page">
   <div class="container">
-    <!-- title -->
     <div class="page-header">
       <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
         <div>
@@ -14,7 +13,6 @@
       </div>
     </div>
 
-    <!-- fliter -->
     <div class="filters">
       <div class="row">
         <div class="col-md-4">
@@ -26,6 +24,7 @@
             <% end %>
           </select>
         </div>
+
         <div class="col-md-4">
           <label class="form-label">select country</label>
           <select class="form-select" id="countryFilter">
@@ -35,6 +34,7 @@
             <% end %>
           </select>
         </div>
+
         <div class="col-md-4">
           <label class="form-label">select rating</label>
           <select class="form-select" id="ratingFilter">
@@ -47,7 +47,6 @@
       </div>
     </div>
 
-    <!-- movie grid -->
     <div class="row" id="moviesGrid">
       <% @movies.each do |movie| %>
         <div class="col-xl-4 col-lg-6 mb-4 movie-item"
@@ -61,12 +60,8 @@
                 <span class="badge category-badge <%= movie.category %>">
                   <%= movie.category %>
                 </span>
-                <span class="badge bg-dark">
-                  <%= movie.country %>
-                </span>
-                <span class="badge bg-secondary">
-                  🎬 <%= movie.release_year %>
-                </span>
+                <span class="badge bg-dark"><%= movie.country %></span>
+                <span class="badge bg-secondary">🎬 <%= movie.release_year %></span>
               </div>
             </div>
 
@@ -75,7 +70,6 @@
                 <p class="card-text"><%= movie.description %></p>
               <% end %>
 
-              <!-- rating show -->
               <div class="rating-display">
                 <strong class="rating-label">Rating:</strong>
                 <div class="rating-value">
@@ -89,9 +83,13 @@
               <div class="btn-group w-100">
                 <%= link_to 'Check', movie, class: 'btn btn-outline-light btn-sm' %>
                 <%= link_to 'Edit', edit_movie_path(movie), class: 'btn btn-outline-primary btn-sm' %>
-                <%= link_to 'Delet', movie, method: :delete,
-                    data: { confirm: 'Are you sure you want to delete this movie?' },
-                    class: 'btn btn-outline-danger btn-sm' %>
+                <%= link_to 'Delete',
+                      movie_path(movie),
+                      data: {
+                        turbo_method: :delete,
+                        turbo_confirm: 'Are you sure you want to delete this movie?'
+                      },
+                      class: 'btn btn-outline-danger btn-sm' %>
               </div>
             </div>
           </div>
@@ -99,25 +97,23 @@
       <% end %>
     </div>
 
-    <!-- empty status -->
     <% if @movies.empty? %>
       <div class="empty-state">
         <div class="empty-icon">🎬</div>
-        <h3>No movies exit yet</h3>
-        <p>Start to creat!</p>
-        <%= link_to 'Add the fisrt movie', new_movie_path, class: 'btn btn-custom btn-lg' %>
+        <h3>No movies exist yet</h3>
+        <p>Start to create!</p>
+        <%= link_to 'Add the first movie', new_movie_path, class: 'btn btn-custom btn-lg' %>
       </div>
     <% end %>
   </div>
 </div>
 
-<!-- Filter function JavaScript -->
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('turbo:load', function() {
   const filters = ['categoryFilter', 'countryFilter', 'ratingFilter'];
 
-  filters.forEach(filterId => {
-    document.getElementById(filterId).addEventListener('change', filterMovies);
+  filters.forEach(id => {
+    document.getElementById(id)?.addEventListener('change', filterMovies);
   });
 
   function filterMovies() {
@@ -126,19 +122,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const rating = document.getElementById('ratingFilter').value;
 
     document.querySelectorAll('.movie-item').forEach(item => {
-      const itemCategory = item.dataset.category;
-      const itemCountry = item.dataset.country;
-      const itemRating = parseInt(item.dataset.rating);
+      const match =
+        (!category || item.dataset.category === category) &&
+        (!country || item.dataset.country === country) &&
+        (!rating || parseInt(item.dataset.rating) >= parseInt(rating));
 
-      const categoryMatch = !category || itemCategory === category;
-      const countryMatch = !country || itemCountry === country;
-      const ratingMatch = !rating || itemRating >= parseInt(rating);
-
-      if (categoryMatch && countryMatch && ratingMatch) {
-        item.style.display = 'block';
-      } else {
-        item.style.display = 'none';
-      }
+      item.style.display = match ? 'block' : 'none';
     });
   }
 });
