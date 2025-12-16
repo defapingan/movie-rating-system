@@ -37,15 +37,19 @@
       <div class="col-lg-6 mb-4">
         <div class="chart-card">
           <div class="chart-title">Category Distribution</div>
-          <div class="chart-canvas">
+          <div class="chart-canvas pie">
             <canvas id="categoryChart"></canvas>
           </div>
           <div class="chart-legend">
-            <% @category_data.each do |category, count| %>
-              <div class="legend-item">
-                <div class="legend-color color-<%= category.downcase.parameterize %>"></div>
-                <span><%= category %> (<%= count %>)</span>
-              </div>
+            <% if @category_data.present? %>
+              <% @category_data.each do |category, count| %>
+                <div class="legend-item">
+                  <div class="legend-color category-<%= category.downcase.parameterize %>"></div>
+                  <span><%= category %> (<%= count %>)</span>
+                </div>
+              <% end %>
+            <% else %>
+              <div class="text-muted">No category data available</div>
             <% end %>
           </div>
         </div>
@@ -55,15 +59,19 @@
       <div class="col-lg-6 mb-4">
         <div class="chart-card">
           <div class="chart-title">Country Distribution</div>
-          <div class="chart-canvas">
+          <div class="chart-canvas pie">
             <canvas id="countryChart"></canvas>
           </div>
           <div class="chart-legend">
-            <% @country_data.each do |country, count| %>
-              <div class="legend-item">
-                <div class="legend-color color-<%= country.downcase %>"></div>
-                <span><%= country %> (<%= count %>)</span>
-              </div>
+            <% if @country_data.present? %>
+              <% @country_data.each do |country, count| %>
+                <div class="legend-item">
+                  <div class="legend-color country-<%= country.downcase.parameterize %>"></div>
+                  <span><%= country %> (<%= count %>)</span>
+                </div>
+              <% end %>
+            <% else %>
+              <div class="text-muted">No country data available</div>
             <% end %>
           </div>
         </div>
@@ -73,20 +81,24 @@
       <div class="col-lg-6 mb-4">
         <div class="chart-card">
           <div class="chart-title">Rating Distribution</div>
-          <div class="chart-canvas">
+          <div class="chart-canvas bar">
             <canvas id="ratingChart"></canvas>
           </div>
           <div class="rating-distribution">
-            <% @rating_distribution.each do |rating, percentage| %>
-              <div class="distribution-bar">
-                <div class="rating-stars">
-                  <% rating.times do %>★<% end %><% (5-rating).times do %>☆<% end %>
+            <% if @rating_distribution.present? %>
+              <% @rating_distribution.each do |rating, percentage| %>
+                <div class="distribution-bar">
+                  <div class="rating-stars">
+                    <% rating.times do %>★<% end %><% (5-rating).times do %>☆<% end %>
+                  </div>
+                  <div class="bar-container">
+                    <div class="bar-fill rating-<%= rating %>" style="width: <%= percentage %>%"></div>
+                  </div>
+                  <div class="percentage"><%= percentage %>%</div>
                 </div>
-                <div class="bar-container">
-                  <div class="bar-fill rating-<%= rating %>" style="width: <%= percentage %>%"></div>
-                </div>
-                <div class="percentage"><%= percentage %>%</div>
-              </div>
+              <% end %>
+            <% else %>
+              <div class="text-muted">No rating data available</div>
             <% end %>
           </div>
         </div>
@@ -96,12 +108,12 @@
       <div class="col-lg-6 mb-4">
         <div class="chart-card">
           <div class="chart-title">Release Year Trend</div>
-          <div class="chart-canvas">
+          <div class="chart-canvas line">
             <canvas id="yearChart"></canvas>
           </div>
           <div class="chart-legend">
             <div class="legend-item">
-              <div class="legend-color" style="background: linear-gradient(135deg, #667eea, #764ba2);"></div>
+              <div class="legend-color year-trend"></div>
               <span>Movies per Year</span>
             </div>
           </div>
@@ -118,38 +130,127 @@
 <!-- Include Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  console.log('Analytics page loaded, initializing charts...');
+// 调试信息
+console.log('=== Analytics Page Loaded ===');
+console.log('Category Data:', <%= raw (@category_data || {}).to_json %>);
+console.log('Country Data:', <%= raw (@country_data || {}).to_json %>);
+console.log('Rating Data:', <%= raw (@rating_distribution || {}).to_json %>);
+console.log('Year Data:', <%= raw (@year_data || {}).to_json %>);
 
-  // Category Distribution Chart (Pie)
-  const categoryCtx = document.getElementById('categoryChart').getContext('2d');
-  new Chart(categoryCtx, {
+// 全局变量存储图表实例
+window.chartInstances = [];
+
+// 主要初始化函数
+function initializeAllCharts() {
+  console.log('Initializing charts...');
+  
+  // 确保canvas元素存在
+  const canvases = [
+    'categoryChart',
+    'countryChart',
+    'ratingChart',
+    'yearChart'
+  ];
+  
+  let allCanvasesExist = true;
+  canvases.forEach(id => {
+    if (!document.getElementById(id)) {
+      console.error(`Canvas not found: ${id}`);
+      allCanvasesExist = false;
+    }
+  });
+  
+  if (!allCanvasesExist) {
+    console.log('Some canvases missing, retrying in 500ms...');
+    setTimeout(initializeAllCharts, 500);
+    return;
+  }
+  
+  // 销毁现有图表
+  destroyAllCharts();
+  
+  // 初始化各个图表
+  initializeCategoryChart();
+  initializeCountryChart();
+  initializeRatingChart();
+  initializeYearChart();
+  
+  console.log('Charts initialized successfully');
+}
+
+// 销毁所有图表
+function destroyAllCharts() {
+  if (window.chartInstances && window.chartInstances.length > 0) {
+    window.chartInstances.forEach(chart => {
+      try {
+        if (chart && typeof chart.destroy === 'function') {
+          chart.destroy();
+        }
+      } catch (e) {
+        console.warn('Error destroying chart:', e);
+      }
+    });
+    window.chartInstances = [];
+  }
+}
+
+// 类别分布图表
+function initializeCategoryChart() {
+  const ctx = document.getElementById('categoryChart').getContext('2d');
+  
+  // 获取数据
+  const rawData = <%= raw (@category_data || {}).to_json %>;
+  const labels = Object.keys(rawData);
+  const data = Object.values(rawData);
+  
+  if (labels.length === 0) {
+    console.warn('No category data available');
+    showNoDataMessage('categoryChart', 'No category data');
+    return;
+  }
+  
+  // 颜色映射（与CSS保持一致）
+  const colorMap = {
+    'sciencefiction': '#3b82f6',
+    'mystery': '#ef4444',
+    'art': '#10b981',
+    'comedy': '#f59e0b',
+    'others': '#6b7280'
+  };
+  
+  const backgroundColors = labels.map(label => {
+    const key = label.toLowerCase().replace(/\s+/g, '');
+    return colorMap[key] || getRandomColor(label);
+  });
+  
+  const chart = new Chart(ctx, {
     type: 'pie',
     data: {
-      labels: <%= raw @category_data.keys.to_json %>,
+      labels: labels,
       datasets: [{
-        data: <%= raw @category_data.values.to_json %>,
-        backgroundColor: [
-          '#3b82f6', '#ef4444', '#f59e0b', '#10b981', '#6b7280'
-        ],
+        data: data,
+        backgroundColor: backgroundColors,
         borderWidth: 2,
-        borderColor: 'rgba(15, 23, 42, 0.8)'
+        borderColor: 'rgba(15, 23, 42, 0.9)'
       }]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        legend: {
-          display: false
-        },
+        legend: { display: false },
         tooltip: {
+          backgroundColor: 'rgba(15, 23, 42, 0.95)',
+          titleColor: '#f8fafc',
+          bodyColor: '#cbd5e1',
+          borderColor: 'var(--purple)',
+          borderWidth: 1,
           callbacks: {
             label: function(context) {
               const label = context.label || '';
               const value = context.raw || 0;
               const total = context.dataset.data.reduce((a, b) => a + b, 0);
-              const percentage = Math.round((value / total) * 100);
+              const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
               return `${label}: ${value} (${percentage}%)`;
             }
           }
@@ -157,20 +258,51 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     }
   });
+  
+  window.chartInstances.push(chart);
+}
 
-  // Country Distribution Chart (Doughnut)
-  const countryCtx = document.getElementById('countryChart').getContext('2d');
-  new Chart(countryCtx, {
+// 国家分布图表
+function initializeCountryChart() {
+  const ctx = document.getElementById('countryChart').getContext('2d');
+  
+  const rawData = <%= raw (@country_data || {}).to_json %>;
+  const labels = Object.keys(rawData);
+  const data = Object.values(rawData);
+  
+  if (labels.length === 0) {
+    showNoDataMessage('countryChart', 'No country data');
+    return;
+  }
+  
+  // 国家颜色映射
+  const countryColorMap = {
+    'unitedstates': '#dc2626',
+    'unitedkingdom': '#1d4ed8',
+    'japan': '#3b82f6',
+    'china': '#ef4444',
+    'france': '#059669',
+    'india': '#7c3aed',
+    'germany': '#f59e0b',
+    'southkorea': '#ec4899',
+    'canada': '#06b6d4',
+    'australia': '#84cc16'
+  };
+  
+  const backgroundColors = labels.map(label => {
+    const key = label.toLowerCase().replace(/\s+/g, '');
+    return countryColorMap[key] || getRandomColor(label);
+  });
+  
+  const chart = new Chart(ctx, {
     type: 'doughnut',
     data: {
-      labels: <%= raw @country_data.keys.to_json %>,
+      labels: labels,
       datasets: [{
-        data: <%= raw @country_data.values.to_json %>,
-        backgroundColor: [
-          '#dc2626', '#1d4ed8', '#ef4444', '#3b82f6', '#059669'
-        ],
+        data: data,
+        backgroundColor: backgroundColors,
         borderWidth: 2,
-        borderColor: 'rgba(15, 23, 42, 0.8)'
+        borderColor: 'rgba(15, 23, 42, 0.9)'
       }]
     },
     options: {
@@ -178,27 +310,52 @@ document.addEventListener('DOMContentLoaded', function() {
       maintainAspectRatio: false,
       cutout: '50%',
       plugins: {
-        legend: {
-          display: false
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(15, 23, 42, 0.95)',
+          titleColor: '#f8fafc',
+          bodyColor: '#cbd5e1'
         }
       }
     }
   });
+  
+  window.chartInstances.push(chart);
+}
 
-  // Rating Distribution Chart (Bar)
-  const ratingCtx = document.getElementById('ratingChart').getContext('2d');
-  new Chart(ratingCtx, {
+// 评分分布图表
+function initializeRatingChart() {
+  const ctx = document.getElementById('ratingChart').getContext('2d');
+  
+  const rawData = <%= raw (@rating_distribution || {}).to_json %>;
+  const labels = ['5 Stars', '4 Stars', '3 Stars', '2 Stars', '1 Star'];
+  const data = [
+    rawData[5] || 0,
+    rawData[4] || 0,
+    rawData[3] || 0,
+    rawData[2] || 0,
+    rawData[1] || 0
+  ];
+  
+  // 检查是否有数据
+  const hasData = data.some(value => value > 0);
+  if (!hasData) {
+    showNoDataMessage('ratingChart', 'No rating data');
+    return;
+  }
+  
+  const chart = new Chart(ctx, {
     type: 'bar',
     data: {
-      labels: ['5 Stars', '4 Stars', '3 Stars', '2 Stars', '1 Star'],
+      labels: labels,
       datasets: [{
-        data: <%= raw @rating_distribution.values.to_json %>,
+        data: data,
         backgroundColor: [
-          'rgba(34, 197, 94, 0.8)',
-          'rgba(134, 239, 172, 0.8)',
-          'rgba(253, 224, 71, 0.8)',
-          'rgba(251, 191, 36, 0.8)',
-          'rgba(248, 113, 113, 0.8)'
+          'rgba(34, 197, 94, 0.9)',
+          'rgba(134, 239, 172, 0.9)',
+          'rgba(253, 224, 71, 0.9)',
+          'rgba(251, 191, 36, 0.9)',
+          'rgba(248, 113, 113, 0.9)'
         ],
         borderColor: [
           '#16a34a',
@@ -215,8 +372,13 @@ document.addEventListener('DOMContentLoaded', function() {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        legend: {
-          display: false
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              return `${context.raw}% of movies`;
+            }
+          }
         }
       },
       scales: {
@@ -224,6 +386,7 @@ document.addEventListener('DOMContentLoaded', function() {
           beginAtZero: true,
           max: 100,
           ticks: {
+            color: '#9ca3af',
             callback: function(value) {
               return value + '%';
             }
@@ -233,6 +396,9 @@ document.addEventListener('DOMContentLoaded', function() {
           }
         },
         x: {
+          ticks: {
+            color: '#9ca3af'
+          },
           grid: {
             display: false
           }
@@ -240,18 +406,32 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     }
   });
+  
+  window.chartInstances.push(chart);
+}
 
-  // Year Statistics Chart (Line)
-  const yearCtx = document.getElementById('yearChart').getContext('2d');
-  new Chart(yearCtx, {
+// 年份趋势图表
+function initializeYearChart() {
+  const ctx = document.getElementById('yearChart').getContext('2d');
+  
+  const rawData = <%= raw (@year_data || {}).to_json %>;
+  const labels = Object.keys(rawData).sort();
+  const data = labels.map(year => rawData[year]);
+  
+  if (labels.length === 0) {
+    showNoDataMessage('yearChart', 'No year data');
+    return;
+  }
+  
+  const chart = new Chart(ctx, {
     type: 'line',
     data: {
-      labels: <%= raw @year_data.keys.to_json %>,
+      labels: labels,
       datasets: [{
         label: 'Movies Released',
-        data: <%= raw @year_data.values.to_json %>,
+        data: data,
         borderColor: '#764ba2',
-        backgroundColor: 'rgba(118, 75, 162, 0.1)',
+        backgroundColor: 'rgba(118, 75, 162, 0.15)',
         borderWidth: 3,
         fill: true,
         tension: 0.4,
@@ -266,24 +446,118 @@ document.addEventListener('DOMContentLoaded', function() {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        legend: {
-          display: false
+        legend: { display: false },
+        tooltip: {
+          mode: 'index',
+          intersect: false,
+          backgroundColor: 'rgba(15, 23, 42, 0.95)'
         }
       },
       scales: {
         y: {
           beginAtZero: true,
+          ticks: {
+            color: '#9ca3af'
+          },
           grid: {
             color: 'rgba(255, 255, 255, 0.1)'
           }
         },
         x: {
+          ticks: {
+            color: '#9ca3af'
+          },
           grid: {
             color: 'rgba(255, 255, 255, 0.1)'
           }
         }
+      },
+      interaction: {
+        intersect: false,
+        mode: 'nearest'
       }
     }
   });
+  
+  window.chartInstances.push(chart);
+}
+
+// 显示无数据消息
+function showNoDataMessage(canvasId, message) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+  ctx.font = '14px "Segoe UI", system-ui, sans-serif';
+  ctx.fillStyle = '#9ca3af';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(message, canvas.width / 2, canvas.height / 2);
+}
+
+// 随机颜色生成
+function getRandomColor(seed) {
+  const colors = [
+    '#3b82f6', '#ef4444', '#f59e0b', '#10b981', '#8b5cf6',
+    '#ec4899', '#06b6d4', '#84cc16', '#f97316', '#6366f1'
+  ];
+  
+  let hash = 0;
+  for (let i = 0; i < seed.length; i++) {
+    hash = seed.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  
+  return colors[Math.abs(hash) % colors.length];
+}
+
+// Turbo事件处理
+document.addEventListener('turbo:load', function() {
+  console.log('Turbo:load event fired');
+  if (document.querySelector('.analytics-page')) {
+    // 延迟初始化以确保DOM完全渲染
+    setTimeout(initializeAllCharts, 100);
+  }
 });
+
+// 传统DOM加载事件
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('DOMContentLoaded event fired');
+  if (document.querySelector('.analytics-page')) {
+    setTimeout(initializeAllCharts, 300);
+  }
+});
+
+// 页面可见性变化时重新初始化
+document.addEventListener('visibilitychange', function() {
+  if (document.visibilityState === 'visible' && document.querySelector('.analytics-page')) {
+    console.log('Page became visible, reinitializing charts');
+    setTimeout(initializeAllCharts, 200);
+  }
+});
+
+// 窗口大小变化时重新绘制
+let resizeTimer;
+window.addEventListener('resize', function() {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(function() {
+    if (document.querySelector('.analytics-page') && window.chartInstances.length > 0) {
+      console.log('Window resized, updating charts');
+      window.chartInstances.forEach(chart => {
+        try {
+          chart.resize();
+        } catch (e) {
+          console.warn('Error resizing chart:', e);
+        }
+      });
+    }
+  }, 250);
+});
+
+// 初始加载时尝试初始化
+if (document.querySelector('.analytics-page')) {
+  console.log('Analytics page found on initial load');
+  setTimeout(initializeAllCharts, 500);
+}
 </script>

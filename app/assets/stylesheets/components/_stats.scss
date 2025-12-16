@@ -1,0 +1,212 @@
+// Stats Cards
+.stats-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+
+  .stat-card {
+    background: linear-gradient(145deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.8));
+    border: 1px solid rgba(126, 34, 206, 0.3);
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+    transition: all 0.3s ease;
+
+    &:hover {
+      transform: translateY(-5px);
+      border-color: var(--purple);
+      box-shadow: 0 10px 25px rgba(126, 34, 206, 0.3);
+    }
+
+    .stat-icon {
+      font-size: 2.5rem;
+      margin-bottom: 0.75rem;
+      opacity: 0.9;
+    }
+
+    .stat-value {
+      font-size: 2.25rem;
+      font-weight: 700;
+      color: var(--light-text);
+      margin-bottom: 0.25rem;
+
+      &.highlight {
+        background: linear-gradient(45deg, #fbbf24, #f59e0b);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+    }
+
+    .stat-label {
+      color: #9ca3af;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+  }
+}
+
+// Chart Legends
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: rgba(15, 23, 42, 0.5);
+  border-radius: 8px;
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+
+    .legend-color {
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      
+      // Category colors - 与 movie-card.scss 保持一致
+      &.category-sciencefiction {
+        background: linear-gradient(45deg, #3b82f6, #1d4ed8);
+      }
+      &.category-mystery {
+        background: linear-gradient(45deg, #ef4444, #dc2626);
+      }
+      &.category-art {
+        background: linear-gradient(45deg, #10b981, #059669);
+      }
+      &.category-comedy {
+        background: linear-gradient(45deg, #f59e0b, #d97706);
+      }
+      &.category-others {
+        background: linear-gradient(45deg, #6b7280, #4b5563);
+      }
+      
+      // Country colors - 为常见国家定义
+      &.country-unitedstates { background: linear-gradient(45deg, #dc2626, #b91c1c); }
+      &.country-unitedkingdom { background: linear-gradient(45deg, #1d4ed8, #1e40af); }
+      &.country-china { background: linear-gradient(45deg, #ef4444, #dc2626); }
+      &.country-japan { background: linear-gradient(45deg, #3b82f6, #2563eb); }
+      &.country-france { background: linear-gradient(45deg, #059669, #047857); }
+      &.country-india { background: linear-gradient(45deg, #7c3aed, #6d28d9); }
+      &.country-germany { background: linear-gradient(45deg, #f59e0b, #d97706); }
+      &.country-southkorea { background: linear-gradient(45deg, #ec4899, #db2777); }
+      &.country-canada { background: linear-gradient(45deg, #06b6d4, #0891b2); }
+      &.country-australia { background: linear-gradient(45deg, #84cc16, #65a30d); }
+      
+      // 通用颜色（用于未定义的国家）
+      &.year-trend {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+      }
+    }
+
+    span {
+      color: #cbd5e1;
+      font-weight: 500;
+    }
+  }
+}
+
+// Rating Distribution Bars
+.rating-distribution {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: rgba(15, 23, 42, 0.5);
+  border-radius: 8px;
+
+  .distribution-bar {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    .rating-stars {
+      width: 80px;
+      color: #fbbf24;
+      font-size: 0.9rem;
+      white-space: nowrap;
+    }
+
+    .bar-container {
+      flex: 1;
+      height: 24px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+
+      .bar-fill {
+        height: 100%;
+        border-radius: 12px;
+        transition: width 1s ease-out;
+        
+        &.rating-5 { background: linear-gradient(90deg, #16a34a, #4ade80); }
+        &.rating-4 { background: linear-gradient(90deg, #4ade80, #86efac); }
+        &.rating-3 { background: linear-gradient(90deg, #eab308, #fde047); }
+        &.rating-2 { background: linear-gradient(90deg, #f59e0b, #fb923c); }
+        &.rating-1 { background: linear-gradient(90deg, #ef4444, #f87171); }
+      }
+    }
+
+    .percentage {
+      width: 50px;
+      text-align: right;
+      color: var(--light-text);
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+  }
+}
+
+// 响应式调整
+@media (max-width: 768px) {
+  .stats-cards {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    
+    .stat-card {
+      padding: 1rem;
+      
+      .stat-value {
+        font-size: 1.75rem;
+      }
+    }
+  }
+  
+  .chart-legend {
+    gap: 0.5rem;
+    
+    .legend-item {
+      font-size: 0.8rem;
+    }
+  }
+  
+  .rating-distribution {
+    .distribution-bar {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+      
+      .rating-stars {
+        width: auto;
+      }
+      
+      .bar-container {
+        width: 100%;
+      }
+      
+      .percentage {
+        width: auto;
+        text-align: left;
+      }
+    }
+  }
+}

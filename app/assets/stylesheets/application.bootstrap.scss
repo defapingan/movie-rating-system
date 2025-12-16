@@ -21,6 +21,35 @@ body {
   color: var(--light-text);
   min-height: 100vh;
   font-family: 'Segoe UI', system-ui, sans-serif;
+  padding-bottom: 2rem;
+}
+
+// 改善链接样式
+a {
+  text-decoration: none;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    opacity: 0.9;
+  }
+}
+
+// 改善滚动条
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.5);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--purple);
+  border-radius: 5px;
+  
+  &:hover {
+    background: var(--dark-purple);
+  }
 }
 
 // import components
@@ -28,5 +57,6 @@ body {
 @import "components/movie-card";
 @import "components/forms";
 @import "components/charts";
+@import "components/stats"; // 新增的统计组件样式
 @import "pages/movies";
 @import "pages/analytics";

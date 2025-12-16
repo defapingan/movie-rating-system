@@ -56,12 +56,6 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
-    # services:
-    #  redis:
-    #    image: redis
-    #    ports:
-    #      - 6379:6379
-    #    options: --health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 5
     steps:
       - name: Install packages
         run: sudo apt-get update && sudo apt-get install --no-install-recommends -y build-essential git libyaml-dev node-gyp pkg-config python-is-python3 google-chrome-stable
@@ -75,37 +69,29 @@ jobs:
           ruby-version: .ruby-version
           bundler-cache: true
 
-      # 🔥 新增：设置 Node.js 环境
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
           cache: 'yarn'
 
-      # 🔥 新增：构建 CSS 文件
       - name: Install dependencies and build CSS
         run: |
-          # 确保 builds 目录存在
           mkdir -p app/assets/builds/
           
-          # 安装 JavaScript 依赖
           yarn install --frozen-lockfile
           
-          # 构建 CSS
           echo "Building CSS..."
           yarn build:css
           
-          # 检查生成了什么文件
           echo "Files generated:"
           ls -la app/assets/builds/
           
-          # 如果生成的是 application.css，重命名为 application.bootstrap.css
           if [ -f "app/assets/builds/application.css" ]; then
             echo "Renaming application.css to application.bootstrap.css"
             mv app/assets/builds/application.css app/assets/builds/application.bootstrap.css
           fi
           
-          # 验证最终文件
           echo "Final files:"
           ls -la app/assets/builds/
           
@@ -119,7 +105,6 @@ jobs:
       - name: Run tests
         env:
           RAILS_ENV: test
-          # REDIS_URL: redis://localhost:6379/0
         run: bin/rails db:test:prepare test test:system
 
       - name: Keep screenshots from failed system tests
