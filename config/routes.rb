@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  devise_for :users
   resources :movies
   get "analytics", to: "analytics#index"
   get "analytics/advanced", to: "analytics#advanced_analytics", as: "advanced_analytics"

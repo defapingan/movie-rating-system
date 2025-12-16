@@ -6,6 +6,7 @@ class MoviesTest < ApplicationSystemTestCase
 
   setup do
     @movie = movies(:one)
+    @user = users(:one) if defined?(users(:one))
   end
 
   test "visiting the index" do
