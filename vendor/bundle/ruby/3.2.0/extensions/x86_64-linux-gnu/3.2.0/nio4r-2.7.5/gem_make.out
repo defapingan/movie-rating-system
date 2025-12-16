@@ -13,10 +13,10 @@ checking for sys/resource.h... yes
 creating Makefile
 
 current directory: /home/defa/development/movie_rating_system/vendor/bundle/ruby/3.2.0/gems/nio4r-2.7.5/ext/nio4r
-make DESTDIR\= sitearchdir\=./.gem.20251126-7278-uovady sitelibdir\=./.gem.20251126-7278-uovady clean
+make DESTDIR\= sitearchdir\=./.gem.20251217-183699-gexpgc sitelibdir\=./.gem.20251217-183699-gexpgc clean
 
 current directory: /home/defa/development/movie_rating_system/vendor/bundle/ruby/3.2.0/gems/nio4r-2.7.5/ext/nio4r
-make DESTDIR\= sitearchdir\=./.gem.20251126-7278-uovady sitelibdir\=./.gem.20251126-7278-uovady
+make DESTDIR\= sitearchdir\=./.gem.20251217-183699-gexpgc sitelibdir\=./.gem.20251217-183699-gexpgc
 compiling bytebuffer.c
 compiling monitor.c
 compiling nio4r_ext.c
@@ -46,8 +46,8 @@ selector.c:525:5: warning: ignoring return value of ‘write’ declared with at
 linking shared-object nio4r_ext.so
 
 current directory: /home/defa/development/movie_rating_system/vendor/bundle/ruby/3.2.0/gems/nio4r-2.7.5/ext/nio4r
-make DESTDIR\= sitearchdir\=./.gem.20251126-7278-uovady sitelibdir\=./.gem.20251126-7278-uovady install
-/usr/bin/install -c -m 0755 nio4r_ext.so ./.gem.20251126-7278-uovady
+make DESTDIR\= sitearchdir\=./.gem.20251217-183699-gexpgc sitelibdir\=./.gem.20251217-183699-gexpgc install
+/usr/bin/install -c -m 0755 nio4r_ext.so ./.gem.20251217-183699-gexpgc
 
 current directory: /home/defa/development/movie_rating_system/vendor/bundle/ruby/3.2.0/gems/nio4r-2.7.5/ext/nio4r
-make DESTDIR\= sitearchdir\=./.gem.20251126-7278-uovady sitelibdir\=./.gem.20251126-7278-uovady clean
+make DESTDIR\= sitearchdir\=./.gem.20251217-183699-gexpgc sitelibdir\=./.gem.20251217-183699-gexpgc clean

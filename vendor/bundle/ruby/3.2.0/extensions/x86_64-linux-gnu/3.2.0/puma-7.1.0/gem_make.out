@@ -25,18 +25,18 @@ checking for SSL_get1_peer_certificate() in openssl/ssl.h... yes
 creating Makefile
 
 current directory: /home/defa/development/movie_rating_system/vendor/bundle/ruby/3.2.0/gems/puma-7.1.0/ext/puma_http11
-make DESTDIR\= sitearchdir\=./.gem.20251126-7278-hg45y2 sitelibdir\=./.gem.20251126-7278-hg45y2 clean
+make DESTDIR\= sitearchdir\=./.gem.20251217-183699-ca838t sitelibdir\=./.gem.20251217-183699-ca838t clean
 
 current directory: /home/defa/development/movie_rating_system/vendor/bundle/ruby/3.2.0/gems/puma-7.1.0/ext/puma_http11
-make DESTDIR\= sitearchdir\=./.gem.20251126-7278-hg45y2 sitelibdir\=./.gem.20251126-7278-hg45y2
+make DESTDIR\= sitearchdir\=./.gem.20251217-183699-ca838t sitelibdir\=./.gem.20251217-183699-ca838t
 compiling http11_parser.c
 compiling mini_ssl.c
 compiling puma_http11.c
 linking shared-object puma/puma_http11.so
 
 current directory: /home/defa/development/movie_rating_system/vendor/bundle/ruby/3.2.0/gems/puma-7.1.0/ext/puma_http11
-make DESTDIR\= sitearchdir\=./.gem.20251126-7278-hg45y2 sitelibdir\=./.gem.20251126-7278-hg45y2 install
-/usr/bin/install -c -m 0755 puma_http11.so ./.gem.20251126-7278-hg45y2/puma
+make DESTDIR\= sitearchdir\=./.gem.20251217-183699-ca838t sitelibdir\=./.gem.20251217-183699-ca838t install
+/usr/bin/install -c -m 0755 puma_http11.so ./.gem.20251217-183699-ca838t/puma
 
 current directory: /home/defa/development/movie_rating_system/vendor/bundle/ruby/3.2.0/gems/puma-7.1.0/ext/puma_http11
-make DESTDIR\= sitearchdir\=./.gem.20251126-7278-hg45y2 sitelibdir\=./.gem.20251126-7278-hg45y2 clean
+make DESTDIR\= sitearchdir\=./.gem.20251217-183699-ca838t sitelibdir\=./.gem.20251217-183699-ca838t clean

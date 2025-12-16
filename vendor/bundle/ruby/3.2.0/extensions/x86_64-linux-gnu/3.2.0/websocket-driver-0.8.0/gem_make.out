@@ -3,16 +3,16 @@ current directory: /home/defa/development/movie_rating_system/vendor/bundle/ruby
 creating Makefile
 
 current directory: /home/defa/development/movie_rating_system/vendor/bundle/ruby/3.2.0/gems/websocket-driver-0.8.0/ext/websocket-driver
-make DESTDIR\= sitearchdir\=./.gem.20251126-7278-a7uofi sitelibdir\=./.gem.20251126-7278-a7uofi clean
+make DESTDIR\= sitearchdir\=./.gem.20251217-183699-smnhjm sitelibdir\=./.gem.20251217-183699-smnhjm clean
 
 current directory: /home/defa/development/movie_rating_system/vendor/bundle/ruby/3.2.0/gems/websocket-driver-0.8.0/ext/websocket-driver
-make DESTDIR\= sitearchdir\=./.gem.20251126-7278-a7uofi sitelibdir\=./.gem.20251126-7278-a7uofi
+make DESTDIR\= sitearchdir\=./.gem.20251217-183699-smnhjm sitelibdir\=./.gem.20251217-183699-smnhjm
 compiling websocket_mask.c
 linking shared-object websocket_mask.so
 
 current directory: /home/defa/development/movie_rating_system/vendor/bundle/ruby/3.2.0/gems/websocket-driver-0.8.0/ext/websocket-driver
-make DESTDIR\= sitearchdir\=./.gem.20251126-7278-a7uofi sitelibdir\=./.gem.20251126-7278-a7uofi install
-/usr/bin/install -c -m 0755 websocket_mask.so ./.gem.20251126-7278-a7uofi
+make DESTDIR\= sitearchdir\=./.gem.20251217-183699-smnhjm sitelibdir\=./.gem.20251217-183699-smnhjm install
+/usr/bin/install -c -m 0755 websocket_mask.so ./.gem.20251217-183699-smnhjm
 
 current directory: /home/defa/development/movie_rating_system/vendor/bundle/ruby/3.2.0/gems/websocket-driver-0.8.0/ext/websocket-driver
-make DESTDIR\= sitearchdir\=./.gem.20251126-7278-a7uofi sitelibdir\=./.gem.20251126-7278-a7uofi clean
+make DESTDIR\= sitearchdir\=./.gem.20251217-183699-smnhjm sitelibdir\=./.gem.20251217-183699-smnhjm clean
