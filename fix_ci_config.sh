@@ -1,3 +1,11 @@
+#!/bin/bash
+echo "=== Fixing CI Configuration ==="
+
+# 备份
+cp .github/workflows/ci.yml .github/workflows/ci.yml.backup
+
+# 创建修正后的版本
+cat > .github/workflows/ci.yml << 'CI_EOF'
 name: CI
 
 on:
@@ -119,3 +127,10 @@ jobs:
           name: screenshots
           path: ${{ github.workspace }}/tmp/screenshots
           if-no-files-found: ignore
+CI_EOF
+
+echo "CI configuration updated!"
+echo "Now commit and push:"
+echo "git add .github/workflows/ci.yml"
+echo "git commit -m 'Fix CI: add database setup before tests'"
+echo "git push"
