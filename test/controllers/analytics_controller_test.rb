@@ -1,8 +1,9 @@
 require "test_helper"
 
 class AnalyticsControllerTest < ActionDispatch::IntegrationTest
-  test "should get index" do
-    get analytics_index_url
+  test "should get analytics page" do
+    get analytics_path
     assert_response :success
+    assert_select "h1", "Data Analytics"
   end
 end

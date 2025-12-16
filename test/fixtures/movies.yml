@@ -1,0 +1,34 @@
+one:
+  title: 'The Shawshank Redemption'
+  category: 'ScienceFiction'
+  country: 'United States'
+  release_year: 1994
+  average_rating: 4.8
+
+two:
+  title: 'The Godfather'
+  category: 'Mystery'
+  country: 'United States'
+  release_year: 1972
+  average_rating: 4.9
+
+three:
+  title: 'The Dark Knight'
+  category: 'ScienceFiction'
+  country: 'United States'
+  release_year: 2008
+  average_rating: 4.7
+
+four:
+  title: 'Parasite'
+  category: 'Mystery'
+  country: 'South Korea'
+  release_year: 2019
+  average_rating: 4.6
+
+five:
+  title: 'La La Land'
+  category: 'Art'
+  country: 'United States'
+  release_year: 2016
+  average_rating: 4.0

@@ -1,86 +1,71 @@
+# app/controllers/analytics_controller.rb
 class AnalyticsController < ApplicationController
   def index
-    # 调试：检查是否有Movie数据
-    Rails.logger.info "=== Analytics Controller Called ==="
-    Rails.logger.info "Movie count: #{Movie.count}"
-
     @movies = Movie.all
-    Rails.logger.info "@movies: #{@movies.inspect}"
 
+    # Use our MovieAnalytics library
+    analytics = MovieAnalytics::MovieStatistics.new(@movies)
+
+    # Get statistics from library
+    @stats = analytics.overall_statistics
+
+    # Assign to instance variables for view
     @movies_count = @movies.count
-    @average_rating = calculate_average_rating
+    @average_rating = analytics.calculate_average_rating(precision: 1)
 
+    # Category and country data
     @category_data = @movies.group(:category).count
-    @country_data  = @movies.group(:country).count
-
-    # 确保数据不为nil
-    @category_data = {} if @category_data.nil?
-    @country_data = {} if @country_data.nil?
+    @country_data = @movies.group(:country).count
 
     @categories_count = @category_data.keys.count
-    @countries_count  = @country_data.keys.count
+    @countries_count = @country_data.keys.count
 
-    @rating_distribution = calculate_rating_distribution
-    @year_data = calculate_year_data
+    # Rating distribution using library
+    @rating_distribution = calculate_rating_distribution_with_library(analytics)
 
-    # 调试日志
-    Rails.logger.info "Category Data: #{@category_data}"
-    Rails.logger.info "Country Data: #{@country_data}"
-    Rails.logger.info "Rating Distribution: #{@rating_distribution}"
-    Rails.logger.info "Year Data: #{@year_data}"
+    # Year data
+    @year_data = analytics.year_stats
 
-    # 如果数据为空，添加示例数据用于测试
-    if @category_data.empty?
-      Rails.logger.info "No category data found, adding sample data for testing"
-      @category_data = {
-        "ScienceFiction" => 5,
-        "Mystery" => 3,
-        "Art" => 2,
-        "Comedy" => 4,
-        "Others" => 1
-      }
-      @categories_count = 5
+    # Additional library-based statistics for view
+    @highest_rated = analytics.highest_rated
+    @lowest_rated = analytics.lowest_rated
+    @rating_std_dev = analytics.calculate_rating_std_dev
+
+    # For CSV export
+    respond_to do |format|
+      format.html
+      format.csv do
+        send_data analytics.to_csv,
+                  filename: "movie-analytics-#{Date.today}.csv",
+                  type: "text/csv"
+      end
     end
+  end
 
-    if @country_data.empty?
-      @country_data = {
-        "United States" => 8,
-        "United Kingdom" => 3,
-        "Japan" => 2,
-        "China" => 1
-      }
-      @countries_count = 4
-    end
+  # New action to demonstrate library functionality
+  def advanced_analytics
+    @movies = Movie.all
+    analytics = MovieAnalytics::MovieStatistics.new(@movies)
 
-    if @rating_distribution.empty?
-      @rating_distribution = {
-        5 => 30.0,
-        4 => 40.0,
-        3 => 20.0,
-        2 => 8.0,
-        1 => 2.0
-      }
-    end
+    @predictions = {
+      scifi_usa: analytics.predict_rating(category: "ScienceFiction", country: "United States"),
+      drama_korea: analytics.predict_rating(category: "Drama", country: "South Korea"),
+      comedy_uk: analytics.predict_rating(category: "Comedy", country: "United Kingdom")
+    }
 
-    if @year_data.empty?
-      current_year = Date.today.year
-      @year_data = {
-        current_year-3 => 2,
-        current_year-2 => 4,
-        current_year-1 => 6,
-        current_year => 3
-      }
-    end
+    # Get similar movies for a sample movie
+    sample_movie = @movies.first
+    @similar_movies = sample_movie ? analytics.find_similar_movies(sample_movie, limit: 3) : []
+
+    # Rating distribution in custom buckets
+    @custom_distribution = analytics.rating_distribution(
+      buckets: [ 0..1, 1..2, 2..3, 3..4, 4..5 ]
+    )
   end
 
   private
 
-  def calculate_average_rating
-    avg = @movies.where.not(average_rating: nil).average(:average_rating)
-    avg ? avg.round(1) : 0.0
-  end
-
-  def calculate_rating_distribution
+  def calculate_rating_distribution_with_library(analytics)
     distribution = {}
 
     ranges = {
@@ -93,8 +78,6 @@ class AnalyticsController < ApplicationController
 
     total = @movies.where.not(average_rating: nil).count
 
-    (1..5).each { |i| distribution[i] = 0 }
-
     return distribution if total.zero?
 
     ranges.each do |stars, range|
@@ -103,13 +86,5 @@ class AnalyticsController < ApplicationController
     end
 
     distribution
-  end
-
-  def calculate_year_data
-    data = @movies.group(:release_year).count.compact
-
-    return {} if data.empty?
-
-    data.sort.to_h
   end
 end

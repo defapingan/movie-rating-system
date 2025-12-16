@@ -1,25 +1,449 @@
+// Analytics页面专用样式
 .analytics-page {
   padding: 2rem 0;
-
+  
   .page-header {
+    background: linear-gradient(145deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.8));
+    border-radius: 16px;
+    padding: 2rem;
+    text-align: center;
+    margin-bottom: 2rem;
+    
     h1 {
       color: var(--light-text);
       font-weight: 700;
       margin-bottom: 0.5rem;
+      font-size: 2.5rem;
     }
-
+    
     .subtitle {
-      color: #9ca3af;
+      color: #cbd5e1;
       font-size: 1.1rem;
+      opacity: 0.9;
     }
   }
 }
 
-.chart-canvas {
-  position: relative;
-  width: 100%;
+// 统一边框样式
+.card-border {
+  background: linear-gradient(145deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.8));
+  border: 1px solid rgba(126, 34, 206, 0.3);
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  
+  &:hover {
+    border-color: var(--purple);
+    box-shadow: 0 12px 40px rgba(126, 34, 206, 0.25);
+  }
+}
 
-  &.pie { height: 240px; }
-  &.bar { height: 260px; }
-  &.line { height: 260px; }
+// 部分标题
+.section-title {
+  color: var(--light-text);
+  font-weight: 600;
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid rgba(126, 34, 206, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  
+  &::before {
+    content: '';
+    display: block;
+    width: 4px;
+    height: 24px;
+    background: linear-gradient(180deg, var(--purple), var(--primary-blue));
+    border-radius: 2px;
+  }
+}
+
+// 统计卡片改进版
+.stats-section {
+  .stats-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+    
+    .stat-card {
+      background: rgba(15, 23, 42, 0.6);
+      border-radius: 12px;
+      padding: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      transition: all 0.3s ease;
+      border: 1px solid rgba(126, 34, 206, 0.2);
+      
+      &:hover {
+        transform: translateY(-3px);
+        border-color: var(--purple);
+        background: rgba(15, 23, 42, 0.8);
+        box-shadow: 0 6px 20px rgba(126, 34, 206, 0.2);
+      }
+      
+      .stat-icon-wrapper {
+        width: 64px;
+        height: 64px;
+        background: linear-gradient(135deg, var(--purple), var(--primary-blue));
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        
+        .stat-icon {
+          font-size: 1.8rem;
+        }
+      }
+      
+      .stat-content {
+        flex: 1;
+        
+        .stat-value {
+          font-size: 2rem;
+          font-weight: 700;
+          color: var(--light-text);
+          margin-bottom: 0.25rem;
+          line-height: 1;
+          
+          &.highlight {
+            background: linear-gradient(45deg, #fbbf24, #f59e0b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+          }
+        }
+        
+        .stat-label {
+          color: #cbd5e1;
+          font-size: 0.9rem;
+          font-weight: 500;
+          opacity: 0.9;
+        }
+      }
+    }
+  }
+}
+
+// 图表容器改进
+.chart-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  
+  .chart-header {
+    margin-bottom: 1.5rem;
+    
+    .chart-title {
+      color: var(--light-text);
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+    
+    .chart-subtitle {
+      color: #9ca3af;
+      font-size: 0.9rem;
+    }
+  }
+  
+  .chart-canvas {
+    flex: 1;
+    min-height: 240px;
+    position: relative;
+    
+    &.pie {
+      min-height: 220px;
+      max-height: 220px;
+    }
+    
+    &.bar {
+      min-height: 240px;
+      max-height: 240px;
+    }
+    
+    &.line {
+      min-height: 240px;
+      max-height: 240px;
+    }
+  }
+  
+  .chart-footer {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(126, 34, 206, 0.2);
+  }
+}
+
+// 图例改进
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: rgba(15, 23, 42, 0.6);
+    border-radius: 8px;
+    border: 1px solid rgba(126, 34, 206, 0.2);
+    
+    .legend-color {
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+      flex-shrink: 0;
+      
+      // 保持原有的颜色类
+      &.category-sciencefiction { background: linear-gradient(45deg, #3b82f6, #1d4ed8); }
+      &.category-mystery { background: linear-gradient(45deg, #ef4444, #dc2626); }
+      &.category-art { background: linear-gradient(45deg, #10b981, #059669); }
+      &.category-comedy { background: linear-gradient(45deg, #f59e0b, #d97706); }
+      &.category-others { background: linear-gradient(45deg, #6b7280, #4b5563); }
+      
+      &.country-unitedstates { background: linear-gradient(45deg, #dc2626, #b91c1c); }
+      &.country-unitedkingdom { background: linear-gradient(45deg, #1d4ed8, #1e40af); }
+      &.country-japan { background: linear-gradient(45deg, #3b82f6, #2563eb); }
+      &.country-china { background: linear-gradient(45deg, #ef4444, #dc2626); }
+      &.country-france { background: linear-gradient(45deg, #059669, #047857); }
+    }
+    
+    .legend-label {
+      color: #cbd5e1;
+      font-size: 0.875rem;
+      font-weight: 500;
+      min-width: 80px;
+    }
+    
+    .legend-count {
+      color: var(--light-text);
+      font-weight: 600;
+      font-size: 0.875rem;
+      background: rgba(126, 34, 206, 0.2);
+      padding: 0.125rem 0.5rem;
+      border-radius: 12px;
+      margin-left: auto;
+    }
+  }
+}
+
+// 评分分布改进
+.rating-distribution {
+  .distribution-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+    
+    .rating-stars {
+      width: 120px;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #fbbf24;
+      font-size: 1rem;
+      
+      .rating-label {
+        color: #cbd5e1;
+        font-size: 0.875rem;
+        font-weight: 500;
+      }
+    }
+    
+    .distribution-info {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      
+      .bar-container {
+        flex: 1;
+        height: 24px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        overflow: hidden;
+        
+        .bar-fill {
+          height: 100%;
+          border-radius: 12px;
+          transition: width 1s ease-out;
+          
+          &.rating-5 { background: linear-gradient(90deg, #16a34a, #4ade80); }
+          &.rating-4 { background: linear-gradient(90deg, #4ade80, #86efac); }
+          &.rating-3 { background: linear-gradient(90deg, #eab308, #fde047); }
+          &.rating-2 { background: linear-gradient(90deg, #f59e0b, #fb923c); }
+          &.rating-1 { background: linear-gradient(90deg, #ef4444, #f87171); }
+        }
+      }
+      
+      .percentage {
+        width: 50px;
+        text-align: right;
+        color: var(--light-text);
+        font-weight: 600;
+        font-size: 0.9rem;
+        min-width: 50px;
+      }
+    }
+  }
+}
+
+// 年份统计
+.year-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  
+  .year-stat-item {
+    background: rgba(15, 23, 42, 0.6);
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+    border: 1px solid rgba(126, 34, 206, 0.2);
+    
+    .stat-label {
+      color: #9ca3af;
+      font-size: 0.875rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .stat-value {
+      color: var(--light-text);
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+  }
+}
+
+// 数据摘要部分
+.summary-section {
+  .summary-card {
+    background: rgba(15, 23, 42, 0.6);
+    border-radius: 12px;
+    padding: 1.5rem;
+    height: 100%;
+    border: 1px solid rgba(126, 34, 206, 0.2);
+    
+    h4 {
+      color: var(--light-text);
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid rgba(126, 34, 206, 0.2);
+    }
+    
+    .category-list,
+    .country-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      
+      li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        
+        &:last-child {
+          border-bottom: none;
+        }
+        
+        .category-name,
+        .country-name {
+          color: #cbd5e1;
+          font-weight: 500;
+        }
+        
+        .category-count,
+        .country-count {
+          color: var(--light-text);
+          font-weight: 600;
+          background: rgba(126, 34, 206, 0.2);
+          padding: 0.25rem 0.75rem;
+          border-radius: 12px;
+          font-size: 0.875rem;
+        }
+      }
+    }
+  }
+}
+
+// 返回按钮样式
+.btn-custom {
+  background: linear-gradient(45deg, var(--purple), var(--primary-blue));
+  border: none;
+  color: white;
+  font-weight: 500;
+  padding: 0.75rem 2rem;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  
+  &:hover {
+    background: linear-gradient(45deg, var(--dark-purple), var(--dark-blue));
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(126, 34, 206, 0.3);
+  }
+}
+
+// 响应式调整
+@media (max-width: 768px) {
+  .analytics-page {
+    padding: 1rem 0;
+    
+    .page-header {
+      padding: 1.5rem 1rem;
+      
+      h1 {
+        font-size: 2rem;
+      }
+    }
+  }
+  
+  .stats-section .stats-cards {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .chart-container {
+    .chart-canvas {
+      &.pie, &.bar, &.line {
+        min-height: 200px;
+        max-height: 200px;
+      }
+    }
+  }
+  
+  .chart-legend {
+    .legend-item {
+      width: 100%;
+      justify-content: space-between;
+    }
+  }
+  
+  .rating-distribution {
+    .distribution-row {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+      
+      .distribution-info {
+        width: 100%;
+      }
+    }
+  }
+  
+  .year-stats {
+    grid-template-columns: 1fr;
+  }
 }
