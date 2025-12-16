@@ -22,6 +22,18 @@ jobs:
       - name: Scan for common Rails security vulnerabilities using static analysis
         run: bin/brakeman --no-pager
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies and build CSS
+        run: |
+        yarn install --frozen-lockfile
+        yarn build:css
+        # 重命名为项目需要的文件名
+        mv app/assets/builds/application.css app/assets/builds/application.bootstrap.css
+
   scan_js:
     runs-on: ubuntu-latest
 
