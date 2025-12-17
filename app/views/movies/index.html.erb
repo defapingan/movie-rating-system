@@ -87,7 +87,7 @@
                         class="btn btn-outline-danger btn-sm delete-movie-btn"
                         data-movie-id="<%= movie.id %>"
                         data-movie-title="<%= movie.title %>"
-                        onclick="initiateDelete(this)">
+                        onclick="handleDeleteClick(event)">
                   Delete
                 </button>
               </div>
@@ -136,7 +136,7 @@
         <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">
           <i class="bi bi-x-circle me-1"></i> Cancel
         </button>
-        <button type="button" id="confirmDeleteBtn" class="btn btn-danger" onclick="confirmDelete()">
+        <button type="button" id="confirmDeleteBtn" class="btn btn-danger">
           <i class="bi bi-trash3 me-1"></i> Delete Movie
         </button>
       </div>
@@ -148,17 +148,19 @@
 // 全局变量
 let currentDeleteMovieId = null;
 let currentDeleteElement = null;
+let deleteModal = null;
 
-// 直接在按钮上调用，确保事件触发
-function initiateDelete(button) {
-  console.log('Delete button clicked');
+// 处理删除按钮点击
+function handleDeleteClick(event) {
+  event.preventDefault();
+  event.stopPropagation();
   
+  const button = event.currentTarget;
   const movieId = button.dataset.movieId;
   const movieTitle = button.dataset.movieTitle;
+  
   currentDeleteMovieId = movieId;
   currentDeleteElement = button.closest('.movie-item');
-  
-  console.log('Movie ID:', movieId, 'Movie Title:', movieTitle);
   
   // 更新Modal内容
   const titleElement = document.getElementById('deleteMovieTitle');
@@ -169,18 +171,71 @@ function initiateDelete(button) {
   // 显示Modal
   const modalElement = document.getElementById('deleteConfirmationModal');
   if (modalElement) {
-    console.log('Showing modal');
-    const modal = new bootstrap.Modal(modalElement);
-    modal.show();
-  } else {
-    console.error('Modal element not found');
+    // 初始化或获取Modal实例
+    if (!deleteModal) {
+      deleteModal = new bootstrap.Modal(modalElement);
+    }
+    deleteModal.show();
   }
 }
 
-// 确认删除函数
-function confirmDelete() {
-  console.log('Confirm delete clicked');
+// 页面加载完成后初始化
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('DOM loaded, initializing movie system');
   
+  // 初始化筛选功能
+  initFilters();
+  
+  // 初始化删除确认按钮
+  const confirmBtn = document.getElementById('confirmDeleteBtn');
+  if (confirmBtn) {
+    confirmBtn.addEventListener('click', confirmDelete);
+  }
+  
+  // 初始化删除按钮的事件监听（使用事件委托）
+  document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('delete-movie-btn') || 
+        e.target.closest('.delete-movie-btn')) {
+      const button = e.target.classList.contains('delete-movie-btn') ? 
+                     e.target : e.target.closest('.delete-movie-btn');
+      handleDeleteClick({ currentTarget: button, preventDefault: () => {}, stopPropagation: () => {} });
+    }
+  });
+});
+
+// 初始化筛选功能
+function initFilters() {
+  const filters = ['categoryFilter', 'countryFilter', 'ratingFilter'];
+  filters.forEach(id => {
+    const filterElement = document.getElementById(id);
+    if (filterElement) {
+      filterElement.addEventListener('change', filterMovies);
+    }
+  });
+  
+  // 初始筛选
+  filterMovies();
+}
+
+// 筛选电影
+function filterMovies() {
+  const category = document.getElementById('categoryFilter')?.value || '';
+  const country = document.getElementById('countryFilter')?.value || '';
+  const rating = document.getElementById('ratingFilter')?.value || '';
+
+  document.querySelectorAll('.movie-item').forEach(item => {
+    const itemRating = parseInt(item.dataset.rating) || 0;
+    const match =
+      (!category || item.dataset.category === category) &&
+      (!country || item.dataset.country === country) &&
+      (!rating || itemRating >= parseInt(rating));
+
+    item.style.display = match ? 'block' : 'none';
+  });
+}
+
+// 确认删除
+async function confirmDelete() {
   if (!currentDeleteMovieId || !currentDeleteElement) {
     console.error('No movie selected for deletion');
     return;
@@ -192,74 +247,59 @@ function confirmDelete() {
   confirmBtn.disabled = true;
   
   const deleteUrl = `/movies/${currentDeleteMovieId}`;
-  console.log('Delete URL:', deleteUrl);
   
   // 获取CSRF token
   const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
-  console.log('CSRF Token:', csrfToken ? 'Found' : 'Not found');
   
-  // 发送删除请求
-  fetch(deleteUrl, {
-    method: 'DELETE',
-    headers: {
-      'X-CSRF-Token': csrfToken,
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      'X-Requested-With': 'XMLHttpRequest'
-    },
-    credentials: 'same-origin'
-  })
-  .then(response => {
-    console.log('Response status:', response.status);
+  try {
+    const response = await fetch(deleteUrl, {
+      method: 'DELETE',
+      headers: {
+        'X-CSRF-Token': csrfToken,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      credentials: 'same-origin'
+    });
+    
+    console.log('Delete response status:', response.status);
     
     if (response.ok) {
-      return response.json().then(data => {
-        console.log('Delete successful:', data);
+      // 关闭Modal
+      if (deleteModal) {
+        deleteModal.hide();
+      }
+      
+      // 动画移除元素
+      currentDeleteElement.style.transition = 'all 0.3s ease';
+      currentDeleteElement.style.opacity = '0';
+      currentDeleteElement.style.transform = 'scale(0.9)';
+      
+      setTimeout(() => {
+        currentDeleteElement.remove();
         
-        // 动画移除元素
-        currentDeleteElement.style.transition = 'all 0.3s ease';
-        currentDeleteElement.style.opacity = '0';
-        currentDeleteElement.style.transform = 'scale(0.9)';
+        // 检查是否还有电影
+        if (document.querySelectorAll('.movie-item').length === 0) {
+          showEmptyState();
+        }
         
-        setTimeout(() => {
-          currentDeleteElement.remove();
-          
-          // 检查是否还有电影
-          if (document.querySelectorAll('.movie-item').length === 0) {
-            showEmptyState();
-          }
-          
-          // 关闭Modal
-          const modalElement = document.getElementById('deleteConfirmationModal');
-          if (modalElement) {
-            const modal = bootstrap.Modal.getInstance(modalElement);
-            if (modal) modal.hide();
-          }
-          
-          // 显示成功消息
-          showMessage('Movie deleted successfully!', 'success');
-        }, 300);
-      });
+        showMessage('Movie deleted successfully!', 'success');
+      }, 300);
     } else {
-      return response.json().then(data => {
-        console.error('Delete failed:', data);
-        throw new Error(data.error || `Delete failed with status: ${response.status}`);
-      }).catch(() => {
-        throw new Error(`Delete failed with status: ${response.status}`);
-      });
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || `Delete failed with status: ${response.status}`);
     }
-  })
-  .catch(error => {
+  } catch (error) {
     console.error('Delete error:', error);
     showMessage(error.message || 'Failed to delete movie. Please try again.', 'error');
-  })
-  .finally(() => {
+  } finally {
     confirmBtn.innerHTML = originalHtml;
     confirmBtn.disabled = false;
-  });
+  }
 }
 
-// 其他辅助函数
+// 显示空状态
 function showEmptyState() {
   const moviesGrid = document.getElementById('moviesGrid');
   if (!moviesGrid) return;
@@ -276,11 +316,11 @@ function showEmptyState() {
   `;
 }
 
+// 显示消息
 function showMessage(message, type) {
   // 移除现有的消息
-  document.querySelectorAll('.alert.position-fixed').forEach(alert => {
-    alert.remove();
-  });
+  const existingAlerts = document.querySelectorAll('.alert.position-fixed');
+  existingAlerts.forEach(alert => alert.remove());
   
   // 创建消息提示
   const alertDiv = document.createElement('div');
@@ -305,72 +345,13 @@ function showMessage(message, type) {
   }, 3000);
 }
 
-// 页面加载时初始化筛选功能
-document.addEventListener('DOMContentLoaded', function() {
-  console.log('DOM loaded, initializing filters');
-  
-  // 筛选功能
-  const filters = ['categoryFilter', 'countryFilter', 'ratingFilter'];
-  filters.forEach(id => {
-    const filterElement = document.getElementById(id);
-    if (filterElement) {
-      filterElement.addEventListener('change', filterMovies);
-    }
-  });
-
-  function filterMovies() {
-    const category = document.getElementById('categoryFilter')?.value || '';
-    const country = document.getElementById('countryFilter')?.value || '';
-    const rating = document.getElementById('ratingFilter')?.value || '';
-
-    document.querySelectorAll('.movie-item').forEach(item => {
-      const match =
-        (!category || item.dataset.category === category) &&
-        (!country || item.dataset.country === country) &&
-        (!rating || parseInt(item.dataset.rating) >= parseInt(rating));
-
-      item.style.display = match ? 'block' : 'none';
-    });
-  }
-  
-  // 初始化筛选
-  filterMovies();
-});
-
-// 也监听 turbo:load 事件
+// Turbo 兼容性处理
 document.addEventListener('turbo:load', function() {
-  console.log('Turbo loaded, reinitializing filters');
+  console.log('Turbo loaded, reinitializing');
   
-  // 重新绑定筛选事件
-  const filters = ['categoryFilter', 'countryFilter', 'ratingFilter'];
-  filters.forEach(id => {
-    const filterElement = document.getElementById(id);
-    if (filterElement) {
-      // 先移除旧的监听器
-      filterElement.replaceWith(filterElement.cloneNode(true));
-      // 重新绑定
-      document.getElementById(id).addEventListener('change', function() {
-        filterMovies();
-      });
-    }
-  });
-  
-  // 重新运行筛选
-  setTimeout(filterMovies, 100);
+  // 重新初始化筛选
+  setTimeout(() => {
+    initFilters();
+  }, 100);
 });
-
-function filterMovies() {
-  const category = document.getElementById('categoryFilter')?.value || '';
-  const country = document.getElementById('countryFilter')?.value || '';
-  const rating = document.getElementById('ratingFilter')?.value || '';
-
-  document.querySelectorAll('.movie-item').forEach(item => {
-    const match =
-      (!category || item.dataset.category === category) &&
-      (!country || item.dataset.country === country) &&
-      (!rating || parseInt(item.dataset.rating) >= parseInt(rating));
-
-    item.style.display = match ? 'block' : 'none';
-  });
-}
 </script>
