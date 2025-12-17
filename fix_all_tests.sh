@@ -1,7 +1,7 @@
 #!/bin/bash
-echo "=== 修复所有测试 ==="
+echo "=== fix ==="
 
-echo "1. 更新Movie模型..."
+echo "1. update movie test..."
 cat > app/models/movie.rb << 'MODEL'
 class Movie < ApplicationRecord
   validates :title, presence: true
@@ -23,7 +23,7 @@ class Movie < ApplicationRecord
 end
 MODEL
 
-echo "2. 更新模型测试..."
+echo "2. update model test..."
 cat > test/models/movie_test.rb << 'TEST'
 require 'test_helper'
 
@@ -49,7 +49,6 @@ class MovieTest < ActiveSupport::TestCase
       release_year: 2023,
       average_rating: nil
     )
-    # 只测试是否能创建对象，不测试验证
     assert movie
   end
   
@@ -59,7 +58,7 @@ class MovieTest < ActiveSupport::TestCase
 end
 TEST
 
-echo "3. 更新测试夹具..."
+echo "3. update fixtures..."
 cat > test/fixtures/movies.yml << 'FIXTURES'
 one:
   title: 'Test Movie'
@@ -69,8 +68,8 @@ one:
   average_rating: 4.5
 FIXTURES
 
-echo "4. 重置测试数据库..."
+echo "4. reset test database..."
 rails db:test:prepare
 
-echo "5. 运行测试..."
+echo "5. run the test..."
 rails test

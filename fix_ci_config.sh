@@ -1,10 +1,10 @@
 #!/bin/bash
 echo "=== Fixing CI Configuration ==="
 
-# 备份
+
 cp .github/workflows/ci.yml .github/workflows/ci.yml.backup
 
-# 创建修正后的版本
+
 cat > .github/workflows/ci.yml << 'CI_EOF'
 name: CI
 
