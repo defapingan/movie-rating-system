@@ -87,7 +87,7 @@
                         class="btn btn-outline-danger btn-sm delete-movie-btn"
                         data-movie-id="<%= movie.id %>"
                         data-movie-title="<%= movie.title %>"
-                        data-turbo="false">  <!-- 新增：添加 data-turbo="false" -->
+                        onclick="initiateDelete(this)">
                   Delete
                 </button>
               </div>
@@ -136,7 +136,7 @@
         <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">
           <i class="bi bi-x-circle me-1"></i> Cancel
         </button>
-        <button type="button" id="confirmDeleteBtn" class="btn btn-danger">
+        <button type="button" id="confirmDeleteBtn" class="btn btn-danger" onclick="confirmDelete()">
           <i class="bi bi-trash3 me-1"></i> Delete Movie
         </button>
       </div>
@@ -145,8 +145,171 @@
 </div>
 
 <script>
-document.addEventListener('turbo:load', function() {
-  // 电影筛选功能
+// 全局变量
+let currentDeleteMovieId = null;
+let currentDeleteElement = null;
+
+// 直接在按钮上调用，确保事件触发
+function initiateDelete(button) {
+  console.log('Delete button clicked');
+  
+  const movieId = button.dataset.movieId;
+  const movieTitle = button.dataset.movieTitle;
+  currentDeleteMovieId = movieId;
+  currentDeleteElement = button.closest('.movie-item');
+  
+  console.log('Movie ID:', movieId, 'Movie Title:', movieTitle);
+  
+  // 更新Modal内容
+  const titleElement = document.getElementById('deleteMovieTitle');
+  if (titleElement) {
+    titleElement.textContent = `Delete "${movieTitle}"?`;
+  }
+  
+  // 显示Modal
+  const modalElement = document.getElementById('deleteConfirmationModal');
+  if (modalElement) {
+    console.log('Showing modal');
+    const modal = new bootstrap.Modal(modalElement);
+    modal.show();
+  } else {
+    console.error('Modal element not found');
+  }
+}
+
+// 确认删除函数
+function confirmDelete() {
+  console.log('Confirm delete clicked');
+  
+  if (!currentDeleteMovieId || !currentDeleteElement) {
+    console.error('No movie selected for deletion');
+    return;
+  }
+  
+  const confirmBtn = document.getElementById('confirmDeleteBtn');
+  const originalHtml = confirmBtn.innerHTML;
+  confirmBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Deleting...';
+  confirmBtn.disabled = true;
+  
+  const deleteUrl = `/movies/${currentDeleteMovieId}`;
+  console.log('Delete URL:', deleteUrl);
+  
+  // 获取CSRF token
+  const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+  console.log('CSRF Token:', csrfToken ? 'Found' : 'Not found');
+  
+  // 发送删除请求
+  fetch(deleteUrl, {
+    method: 'DELETE',
+    headers: {
+      'X-CSRF-Token': csrfToken,
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'X-Requested-With': 'XMLHttpRequest'
+    },
+    credentials: 'same-origin'
+  })
+  .then(response => {
+    console.log('Response status:', response.status);
+    
+    if (response.ok) {
+      return response.json().then(data => {
+        console.log('Delete successful:', data);
+        
+        // 动画移除元素
+        currentDeleteElement.style.transition = 'all 0.3s ease';
+        currentDeleteElement.style.opacity = '0';
+        currentDeleteElement.style.transform = 'scale(0.9)';
+        
+        setTimeout(() => {
+          currentDeleteElement.remove();
+          
+          // 检查是否还有电影
+          if (document.querySelectorAll('.movie-item').length === 0) {
+            showEmptyState();
+          }
+          
+          // 关闭Modal
+          const modalElement = document.getElementById('deleteConfirmationModal');
+          if (modalElement) {
+            const modal = bootstrap.Modal.getInstance(modalElement);
+            if (modal) modal.hide();
+          }
+          
+          // 显示成功消息
+          showMessage('Movie deleted successfully!', 'success');
+        }, 300);
+      });
+    } else {
+      return response.json().then(data => {
+        console.error('Delete failed:', data);
+        throw new Error(data.error || `Delete failed with status: ${response.status}`);
+      }).catch(() => {
+        throw new Error(`Delete failed with status: ${response.status}`);
+      });
+    }
+  })
+  .catch(error => {
+    console.error('Delete error:', error);
+    showMessage(error.message || 'Failed to delete movie. Please try again.', 'error');
+  })
+  .finally(() => {
+    confirmBtn.innerHTML = originalHtml;
+    confirmBtn.disabled = false;
+  });
+}
+
+// 其他辅助函数
+function showEmptyState() {
+  const moviesGrid = document.getElementById('moviesGrid');
+  if (!moviesGrid) return;
+  
+  moviesGrid.innerHTML = `
+    <div class="col-12">
+      <div class="empty-state">
+        <div class="empty-icon">🎬</div>
+        <h3>No movies exist yet</h3>
+        <p>Start to create!</p>
+        <a href="/movies/new" class="btn btn-custom btn-lg">Add the first movie</a>
+      </div>
+    </div>
+  `;
+}
+
+function showMessage(message, type) {
+  // 移除现有的消息
+  document.querySelectorAll('.alert.position-fixed').forEach(alert => {
+    alert.remove();
+  });
+  
+  // 创建消息提示
+  const alertDiv = document.createElement('div');
+  alertDiv.className = `alert alert-${type === 'success' ? 'success' : 'danger'} position-fixed top-0 end-0 m-3`;
+  alertDiv.style.zIndex = '9999';
+  alertDiv.style.minWidth = '300px';
+  alertDiv.innerHTML = `
+    <div class="d-flex align-items-center">
+      <i class="bi ${type === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill'} me-2"></i>
+      <span class="flex-grow-1">${message}</span>
+      <button type="button" class="btn-close ms-2" onclick="this.parentElement.parentElement.remove()"></button>
+    </div>
+  `;
+  
+  document.body.appendChild(alertDiv);
+  
+  // 自动消失
+  setTimeout(() => {
+    if (alertDiv.parentNode) {
+      alertDiv.remove();
+    }
+  }, 3000);
+}
+
+// 页面加载时初始化筛选功能
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('DOM loaded, initializing filters');
+  
+  // 筛选功能
   const filters = ['categoryFilter', 'countryFilter', 'ratingFilter'];
   filters.forEach(id => {
     const filterElement = document.getElementById(id);
@@ -169,186 +332,45 @@ document.addEventListener('turbo:load', function() {
       item.style.display = match ? 'block' : 'none';
     });
   }
-
-  // 删除确认功能
-  let currentDeleteMovieId = null;
-  let currentDeleteElement = null;
-
-  // 监听所有删除按钮的点击
-  document.querySelectorAll('.delete-movie-btn').forEach(button => {
-    button.addEventListener('click', function(e) {
-      e.preventDefault();
-      
-      const movieId = this.dataset.movieId;
-      const movieTitle = this.dataset.movieTitle;
-      currentDeleteMovieId = movieId;
-      currentDeleteElement = this.closest('.movie-item');
-      
-      // 更新Modal内容
-      const titleElement = document.getElementById('deleteMovieTitle');
-      if (titleElement) {
-        titleElement.textContent = `Delete "${movieTitle}"?`;
-      }
-      
-      // 显示Modal
-      const modalElement = document.getElementById('deleteConfirmationModal');
-      if (modalElement) {
-        const modal = new bootstrap.Modal(modalElement);
-        modal.show();
-      }
-    });
-  });
-
-  // 确认删除按钮点击事件
-  const confirmBtn = document.getElementById('confirmDeleteBtn');
-  if (confirmBtn) {
-    confirmBtn.addEventListener('click', function() {
-      if (!currentDeleteMovieId || !currentDeleteElement) return;
-      
-      // 显示加载状态
-      const originalHtml = this.innerHTML;
-      this.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Deleting...';
-      this.disabled = true;
-      
-      // 构建正确的URL
-      const deleteUrl = `/movies/${currentDeleteMovieId}`;
-      
-      // 获取CSRF token
-      const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
-      
-      console.log('Deleting movie at URL:', deleteUrl);
-      
-      // 发送删除请求 - 简化版
-      fetch(deleteUrl, {
-        method: 'DELETE',
-        headers: {
-          'X-CSRF-Token': csrfToken,
-          'X-Requested-With': 'XMLHttpRequest'  // 新增：添加这个header
-        },
-        credentials: 'same-origin'
-      })
-      .then(response => {
-        console.log('Delete response status:', response.status);
-        
-        if (response.ok) {
-          // 移除电影元素
-          currentDeleteElement.style.transition = 'all 0.3s ease';
-          currentDeleteElement.style.opacity = '0';
-          currentDeleteElement.style.transform = 'scale(0.9)';
-          
-          setTimeout(() => {
-            currentDeleteElement.remove();
-            
-            // 检查是否还有电影
-            if (document.querySelectorAll('.movie-item').length === 0) {
-              showEmptyState();
-            }
-            
-            // 关闭Modal
-            const modalElement = document.getElementById('deleteConfirmationModal');
-            if (modalElement) {
-              const modal = bootstrap.Modal.getInstance(modalElement);
-              if (modal) modal.hide();
-            }
-            
-            // 显示成功消息
-            showMessage('Movie deleted successfully!', 'success');
-          }, 300);
-        } else {
-          // 如果响应不是 200，尝试解析错误
-          if (response.status === 404) {
-            // 电影可能已被删除，直接移除元素
-            currentDeleteElement.remove();
-            if (document.querySelectorAll('.movie-item').length === 0) {
-              showEmptyState();
-            }
-            const modalElement = document.getElementById('deleteConfirmationModal');
-            if (modalElement) {
-              const modal = bootstrap.Modal.getInstance(modalElement);
-              if (modal) modal.hide();
-            }
-            showMessage('Movie has been deleted.', 'success');
-          } else {
-            // 尝试获取错误信息
-            return response.text().then(text => {
-              console.error('Delete failed:', text);
-              throw new Error(`Delete failed with status: ${response.status}`);
-            });
-          }
-        }
-      })
-      .catch(error => {
-        console.error('Delete error:', error);
-        showMessage('Failed to delete movie. Please try again.', 'error');
-      })
-      .finally(() => {
-        // 重置按钮状态
-        this.innerHTML = originalHtml;
-        this.disabled = false;
-      });
-    });
-  }
-
-  function showEmptyState() {
-    const moviesGrid = document.getElementById('moviesGrid');
-    if (!moviesGrid) return;
-    
-    moviesGrid.innerHTML = `
-      <div class="col-12">
-        <div class="empty-state">
-          <div class="empty-icon">🎬</div>
-          <h3>No movies exist yet</h3>
-          <p>Start to create!</p>
-          <a href="/movies/new" class="btn btn-custom btn-lg">Add the first movie</a>
-        </div>
-      </div>
-    `;
-  }
-
-  function showMessage(message, type) {
-    // 移除现有的固定位置消息
-    document.querySelectorAll('.alert.position-fixed').forEach(alert => {
-      alert.remove();
-    });
-    
-    // 创建消息提示
-    const alertDiv = document.createElement('div');
-    alertDiv.className = `alert alert-${type === 'success' ? 'success' : 'danger'} position-fixed top-0 end-0 m-3`;
-    alertDiv.style.zIndex = '9999';
-    alertDiv.style.minWidth = '300px';
-    alertDiv.innerHTML = `
-      <div class="d-flex align-items-center">
-        <i class="bi ${type === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill'} me-2"></i>
-        <span class="flex-grow-1">${message}</span>
-        <button type="button" class="btn-close ms-2" data-bs-dismiss="alert" aria-label="Close"></button>
-      </div>
-    `;
-    
-    document.body.appendChild(alertDiv);
-    
-    // 自动消失
-    setTimeout(() => {
-      if (alertDiv.parentNode) {
-        alertDiv.remove();
-      }
-    }, 3000);
-  }
-  
-  // Modal关闭时重置状态
-  const modalElement = document.getElementById('deleteConfirmationModal');
-  if (modalElement) {
-    modalElement.addEventListener('hidden.bs.modal', function() {
-      const confirmBtn = document.getElementById('confirmDeleteBtn');
-      if (confirmBtn) {
-        confirmBtn.innerHTML = '<i class="bi bi-trash3 me-1"></i> Delete Movie';
-        confirmBtn.disabled = false;
-      }
-      currentDeleteMovieId = null;
-      currentDeleteElement = null;
-    });
-  }
   
   // 初始化筛选
   filterMovies();
 });
+
+// 也监听 turbo:load 事件
+document.addEventListener('turbo:load', function() {
+  console.log('Turbo loaded, reinitializing filters');
+  
+  // 重新绑定筛选事件
+  const filters = ['categoryFilter', 'countryFilter', 'ratingFilter'];
+  filters.forEach(id => {
+    const filterElement = document.getElementById(id);
+    if (filterElement) {
+      // 先移除旧的监听器
+      filterElement.replaceWith(filterElement.cloneNode(true));
+      // 重新绑定
+      document.getElementById(id).addEventListener('change', function() {
+        filterMovies();
+      });
+    }
+  });
+  
+  // 重新运行筛选
+  setTimeout(filterMovies, 100);
+});
+
+function filterMovies() {
+  const category = document.getElementById('categoryFilter')?.value || '';
+  const country = document.getElementById('countryFilter')?.value || '';
+  const rating = document.getElementById('ratingFilter')?.value || '';
+
+  document.querySelectorAll('.movie-item').forEach(item => {
+    const match =
+      (!category || item.dataset.category === category) &&
+      (!country || item.dataset.country === country) &&
+      (!rating || parseInt(item.dataset.rating) >= parseInt(rating));
+
+    item.style.display = match ? 'block' : 'none';
+  });
+}
 </script>
