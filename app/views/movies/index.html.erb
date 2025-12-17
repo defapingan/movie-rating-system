@@ -86,7 +86,8 @@
                 <button type="button" 
                         class="btn btn-outline-danger btn-sm delete-movie-btn"
                         data-movie-id="<%= movie.id %>"
-                        data-movie-title="<%= movie.title %>">
+                        data-movie-title="<%= movie.title %>"
+                        data-turbo="false">
                   Delete
                 </button>
               </div>
@@ -249,8 +250,8 @@ async function confirmDelete() {
   confirmBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Deleting...';
   confirmBtn.disabled = true;
   
-  // 确保URL格式正确
-  const deleteUrl = `/movies/${currentDeleteMovieId}`;
+  // 使用绝对URL，避免Turbo拦截
+  const deleteUrl = `${window.location.origin}/movies/${currentDeleteMovieId}`;
   console.log('Sending DELETE request to:', deleteUrl);
   
   // 获取CSRF token
@@ -258,22 +259,33 @@ async function confirmDelete() {
   console.log('CSRF Token found:', csrfToken ? 'Yes' : 'No');
   
   try {
-    const response = await fetch(deleteUrl, {
-      method: 'DELETE',
-      headers: {
-        'X-CSRF-Token': csrfToken,
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'X-Requested-With': 'XMLHttpRequest'
-      },
-      credentials: 'same-origin'
-    });
+    // 创建一个临时表单来发送请求，避免Turbo拦截
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = deleteUrl;
+    form.style.display = 'none';
     
-    console.log('Delete response status:', response.status);
-    console.log('Delete response headers:', [...response.headers.entries()]);
+    // 添加_method参数模拟DELETE
+    const methodInput = document.createElement('input');
+    methodInput.type = 'hidden';
+    methodInput.name = '_method';
+    methodInput.value = 'DELETE';
+    form.appendChild(methodInput);
     
-    if (response.ok) {
-      console.log('Delete successful');
+    // 添加CSRF token
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = 'authenticity_token';
+    csrfInput.value = csrfToken;
+    form.appendChild(csrfInput);
+    
+    // 添加到文档并提交
+    document.body.appendChild(form);
+    form.submit();
+    
+    // 移除表单
+    setTimeout(() => {
+      form.remove();
       
       // 关闭Modal
       if (deleteModal) {
@@ -295,21 +307,11 @@ async function confirmDelete() {
         
         showMessage('Movie deleted successfully!', 'success');
       }, 300);
-    } else {
-      console.error('Delete failed with status:', response.status);
-      let errorMessage = `Delete failed with status: ${response.status}`;
-      try {
-        const errorData = await response.json();
-        console.error('Error data:', errorData);
-        errorMessage = errorData.error || errorMessage;
-      } catch (e) {
-        // 忽略JSON解析错误
-      }
-      throw new Error(errorMessage);
-    }
+    }, 100);
+    
   } catch (error) {
     console.error('Delete error:', error);
-    showMessage(error.message || 'Failed to delete movie. Please try again.', 'error');
+    showMessage('Failed to delete movie. Please try again.', 'error');
   } finally {
     confirmBtn.innerHTML = originalHtml;
     confirmBtn.disabled = false;
